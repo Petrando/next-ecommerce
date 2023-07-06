@@ -12,7 +12,7 @@ export default async function UserPage() {
   return (
     <div className='w-screen h-screen bg-sky-200 flex flex-col items-center justify-center'>
       <p className='font-bold italic'>User Page</p>
-      <LogoutButton />
+      <LogoutButton label='Log out'/>
     </div>
   )
 }

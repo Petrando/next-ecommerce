@@ -62,13 +62,16 @@ export const AddButton:FunctionComponent<IAddButton> = ({title, margin, onClick,
     );
 }
 
-export const LogoutButton:FunctionComponent = () => {
+interface ILogoutBtn {
+    label: string;
+}
+export const LogoutButton:FunctionComponent<ILogoutBtn> = ({label}) => {
     return (
         <button
             className={`bg-blue-500 hover:bg-blue-700 flex flex-col items-center text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline relative`}
             onClick={()=>{signOut()}}
         >
-            Logout
+            {label===''?'Log out':label}
         </button>
     )
 }

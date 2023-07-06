@@ -11,7 +11,7 @@ export default async function Login() {
         <div className='w-full flex items-center justify-center h-screen bg-cyan-200'> 
             {
                 session?
-                    <LogoutButton />:
+                    <LogoutButton label='Log out' />:
                     <LoginForm />
             }           
             
