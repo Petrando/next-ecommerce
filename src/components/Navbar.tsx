@@ -60,7 +60,7 @@ export const Navbar:FunctionComponent = () => {
     const navAdmin:INavItem[] = [
         {
             label:"Home",
-            to:"/admin/home", 
+            to:"/", 
             condition:true,
             icon:null,
             onClick:()=>{}

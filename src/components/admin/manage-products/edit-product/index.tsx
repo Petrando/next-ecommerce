@@ -5,7 +5,7 @@ import { PageContainer } from '@/components/PageContainer'
 
 export const EditProductForm:FunctionComponent = () => {
     const searchParams = useSearchParams()
-    console.log('search params : ', searchParams.get('product') === 'string'?searchParams.get('product'):'')
+    console.log('search params : ', searchParams.get('product'))
     return (
         <PageContainer>
             <div className='flex flex-col justify-center items-center '>
