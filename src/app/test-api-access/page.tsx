@@ -4,7 +4,7 @@ export default function TestAPIAccess() {
 
     const accessProtectedApi = async () => {
         try{
-            const response = await fetch('/api/protected/user')
+            const response = await fetch('/api/admin/get-dot-env')
             const responseData = await response.json()
 
             console.log(responseData)
