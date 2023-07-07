@@ -1,6 +1,6 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import dbConnect from '../../utils/dbConnect'
+import dbConnect from '@/utils/dbConnect';
 import User from '../../models/user';
 
 export const authOptions: NextAuthOptions = {

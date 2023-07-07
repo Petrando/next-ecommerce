@@ -34,19 +34,18 @@ export const LoginForm = () => {
         e.preventDefault()
 
         setLoading(true)
-                
-        const callbackUrl = username === 'admin'?'/protected/admin':'/protected/user'
+                        
         
         const signResult = await signIn('credentials', {
             redirect: true,
-            callbackUrl,
+            callbackUrl:'/',
             username,
             password,
         })
         .then((res) => {
             console.log('sign in result : ')
             console.log(res);
-            toast('login success!', { hideProgressBar: false, autoClose: 2000, type: 'success' })
+            //toast('login success!', { hideProgressBar: false, autoClose: 2000, type: 'success' })
         })
         .catch((err) => {
             console.error(err);
