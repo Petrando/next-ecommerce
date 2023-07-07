@@ -50,7 +50,7 @@ export const Search: FunctionComponent<ISearch> = ({ toggleSearchResultDisplayed
 
 	const loadCategories = async () => {		
         try{
-            const response = await fetch('/api/admin/manage-categories/list-categories')
+            const response = await fetch('/api/categories/list-categories')
 
             const categoryJson = await response.json()
             const categoryData = categoryJson.data;

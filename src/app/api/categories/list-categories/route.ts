@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import Category, { iCategory } from '../../../../../../models/category'
+import Category, { iCategory } from '../../../../../models/category'
 import dbConnect from '@/utils/dbConnect'
 
 export async function GET(req:Request) {

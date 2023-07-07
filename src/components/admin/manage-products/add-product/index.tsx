@@ -39,7 +39,7 @@ export const AddProduct:FunctionComponent = () => {
 	const init = async () => {
         setLoading(true)
 		try{
-            const response = await fetch('/api/admin/manage-categories/list-categories')
+            const response = await fetch('/api/categories/list-categories')
 
             const categoryJson = await response.json()
             const categoryData = categoryJson.data;

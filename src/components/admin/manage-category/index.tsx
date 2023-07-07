@@ -25,7 +25,7 @@ export const CategoryList:FunctionComponent = () => {
 	const {user, token} = isAuthenticated();	
 	*/
 	const loadCategories = async() => {
-		const response = await fetch('/api/admin/manage-categories/list-categories/'/*,
+		const response = await fetch('/api/categories/list-categories/'/*,
         {
             method: 'POST',
             headers: {
