@@ -31,8 +31,8 @@ const EditButton:FunctionComponent<IEditButton> = ({ product }) => {
     return (
         <Link 
             href={{
-                pathname:"/admin/manage/edit-product",
-                query: JSON.stringify(product)
+                pathname:"/admin/products/edit",
+                query: {product:JSON.stringify(product)}
             }}             
             className="flex items-center text-white bg-teal-700 hover:bg-teal-800 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-xs px-1 py-1 text-center"    
             onClick={()=>{setToDelete(null);}}

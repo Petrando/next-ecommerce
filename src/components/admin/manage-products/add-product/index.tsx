@@ -13,7 +13,6 @@ import { ButtonWithLoader } from '@/components/Buttons';
 import { ICategoryData, ISubOption } from '../../../../../types';
 import { categoryReducer, categoryState as initCategories, getCategoryStructures, getCategoryIds, CategoryActionKind } from './categoryReducer';
 import { initialItem, itemPropReducer, ItemActionKind } from './itemPropsReducer';
-import { ICloudinary } from '@/app/admin/products/add/page';
 
 export const AddProduct:FunctionComponent = () => {    
     const [categoryState, categoryDispatch] = useReducer(categoryReducer, initCategories)
