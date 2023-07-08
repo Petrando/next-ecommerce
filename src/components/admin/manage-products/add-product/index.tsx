@@ -3,38 +3,27 @@
 import { useState, useEffect, useReducer, Fragment, ChangeEvent, SyntheticEvent, FunctionComponent } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-//import { useLocation } from 'react-router-dom';
-//import imageCompression from 'browser-image-compression';
-//import { createProduct, getCategories } from '../../../api/api-admin.js';
-//import { isAuthenticated } from '../../../api/api-auth.js';
 import { PageContainer } from '@/components/PageContainer';
 import { ButtonWithLoader } from '@/components/Buttons';
-//import { EditProduct } from './EditProduct.js';
 import { ICategoryData, ISubOption } from '../../../../../types';
-import { categoryReducer, categoryState as initCategories, getCategoryStructures, getCategoryIds, CategoryActionKind } from './categoryReducer';
-import { initialItem, itemPropReducer, ItemActionKind } from './itemPropsReducer';
+import { categoryReducer, categoryState as initCategories, getCategoryStructures, getCategoryIds, CategoryActionKind } from '../reducers/categoryReducer';
+import { initialItem, itemPropReducer, ItemActionKind } from '../reducers/itemPropsReducer';
 
 export const AddProduct:FunctionComponent = () => {    
     const [categoryState, categoryDispatch] = useReducer(categoryReducer, initCategories)
     const [itemState, itemDispatch] = useReducer(itemPropReducer, initialItem)
-	const [initCompleted, setInitComplete] = useState<boolean>(false);
 
     const [dotEnv, setDotEnv] = useState<{cloudName:string, apiKey:string, apiSecret:string}>({
         cloudName:'', apiKey:'', apiSecret:''
     })
 
-	const { itemName, itemDescription, price, stock, isNewItem, itemPic } = itemState
+	const { itemName, itemDescription, price, stock, isNewItem, newProductPic } = itemState
 
     const {categoryIdx, optionIdx, subOptionIdx} = categoryState
     const {categories, options, subOptions} = getCategoryStructures(categoryState)
 
     const [loading, setLoading] = useState<boolean>(false)
-	const [redirect, setRedirect] = useState<boolean>(false);
-	
-
-    //const location = useLocation(); 
-
-	//const {user, token} = isAuthenticated();		
+	const [redirect, setRedirect] = useState<boolean>(false);	
 	
 	const init = async () => {
         setLoading(true)
@@ -102,9 +91,9 @@ export const AddProduct:FunctionComponent = () => {
 			return;
 		}
         const {cloudName, apiKey, apiSecret} = dotEnv
-        if(itemPic){                          
+        if(newProductPic){                          
             const formData = new FormData();
-            formData.append('file', itemPic);
+            formData.append('file', newProductPic);
             formData.append('upload_preset', 'nextcommerce');
             setLoading(true)
             const categoryObj = getCategoryIds(categoryState)
@@ -148,31 +137,6 @@ export const AddProduct:FunctionComponent = () => {
         
 	}
 	
-	const setFormData_Category = () => {
-		/*const categoryId = categories[categoryIdx as number]._id;
-		const optionId = options[optionIdx]._id;
-		let option = {optionId}
-
-		const subOptionId = subOptions.length>0?subOptions[subOptionIdx]._id:'';
-		if(subOptionId!==''){
-            //
-            //    Don't understand why I made this line below? Need to have proper look
-            //
-			//option.subOption = {subOptionId}
-		}
-
-		const categoryObj = {categoryId, option}
-		console.log(categoryObj);
-		formData?.set('category', JSON.stringify(categoryObj));	
-        */	
-	}
-/*
-    if(location.state){
-        if(location.state.product){
-           return <EditProduct product={location.state.product} />
-        }
-    }
-*/
     return (        
         <PageContainer>
             <div className='flex flex-col justify-center items-center '>
@@ -377,10 +341,11 @@ export const AddProduct:FunctionComponent = () => {
                         </div>
                         <div className='w-full flex items-center justify-center md:w-1/3 mb-2 md:mb-0 overflow-hidden'>
                             {
-                                itemPic !== null?
+                                newProductPic!==null ?
                                     <img 
                                         className='rounded-lg' 
-                                        src={URL.createObjectURL(itemPic)} 
+                                        alt='item pic'
+                                        src={URL.createObjectURL(newProductPic)} 
                                     />:
                                         <p>No pic yet...</p>
                             }                            

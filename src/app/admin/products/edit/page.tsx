@@ -13,7 +13,7 @@ const EditProduct = async () => {
     }
 
     return (
-        <div className="w-screen h-screen flex items-center justify-center">
+        <div className="w-screen min-h-screen flex items-center justify-center">
             <EditProductForm />
         </div>
     );

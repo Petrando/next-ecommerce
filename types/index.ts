@@ -15,7 +15,7 @@ export interface ICategoryData {
     options?: IOption[]
 }
 
-interface IProductCategory {    
+export interface IProductCategory {    
     categoryId: string;
     option:{
         optionId: string;
@@ -25,7 +25,7 @@ interface IProductCategory {
     }
 }
 
-interface IMyCategory {   
+export interface IMyCategory {   
     _id:any;
     category: string;
     options?:{

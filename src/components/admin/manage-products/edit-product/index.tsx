@@ -1,17 +1,111 @@
 'use client'
-import { FunctionComponent, SyntheticEvent} from 'react'
+import { useState, useEffect, useReducer, FunctionComponent, SyntheticEvent, ChangeEvent, Fragment } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { PageContainer } from '@/components/PageContainer'
 import { ButtonWithLoader } from '@/components/Buttons'
+import { ICategoryData, ISubOption } from '../../../../../types'
+import { categoryReducer, categoryState as initCategories, getCategoryStructures, getCategoryIds, CategoryActionKind } from '../reducers/categoryReducer';
+import { initialItem, itemPropReducer, ItemActionKind } from '../reducers/itemPropsReducer';
 
 export const EditProductForm:FunctionComponent = () => {
+    const [categoryState, categoryDispatch] = useReducer(categoryReducer, initCategories)
+    const [itemState, itemDispatch] = useReducer(itemPropReducer, initialItem)
+    const [dotEnv, setDotEnv] = useState<{cloudName:string, apiKey:string, apiSecret:string}>({
+        cloudName:'', apiKey:'', apiSecret:''
+    })
+    const [categoryInitialized, setCategoryInitialized] = useState(false)
+
+    const [loading, setLoading] = useState(false)
+
+    const { itemName, itemDescription, price, stock, isNewItem, productPic, newProductPic } = itemState
+
+    const {mainCategories, categoryIdx, optionIdx, subOptionIdx} = categoryState
+    const {categories, options, subOptions} = getCategoryStructures(categoryState)
+
     const searchParams = useSearchParams()
     //console.log('search params : ', searchParams.get('product'))
     const productString = searchParams.get('product')
-    const product = productString?JSON.parse(productString):''
+    const product = productString?JSON.parse(productString):null
 
-    console.log(product)
-    
+    console.log('product : ', product)
+    const init = async () => {
+        const { category } = product
+        setLoading(true)
+		try{
+            const response = await fetch('/api/categories/list-categories')
+
+            const categoryJson = await response.json()
+            const categoryData = categoryJson.data;
+            categoryDispatch({type:CategoryActionKind.SET_MAIN_CATEGORIES, payload:categoryData })
+
+            const dotEnvResponse = await fetch('/api/admin/get-dot-env')
+            const dotEnvData = await dotEnvResponse.json()
+            const dotEnv = dotEnvData.data
+            setDotEnv(dotEnv)
+        }
+        catch(err){
+
+        }
+        finally{
+            setLoading(false)
+        }
+	}
+
+    useEffect(()=>{
+        init()
+    }, [])
+
+    useEffect(()=>{
+        //assumption : itemState populated with items prop if itemName is not empty string
+        if(product !== null && itemName === ''){
+            itemDispatch({type:ItemActionKind.INIT_ITEM_FOR_EDIT, payload:product})
+        }
+    }, [product, itemName])
+
+    useEffect(()=>{
+        if(product!==null && mainCategories.length> 0){
+            if(!categoryInitialized){
+                console.log('this called!?')
+                const {category} = product
+                categoryDispatch({type:CategoryActionKind.INIT_FOR_EDIT, payload:category})
+                setCategoryInitialized(true)
+            }
+            
+        }
+        
+    }, [product, mainCategories.length, categoryInitialized])
+
+    const handleChange = (name:ItemActionKind) => (e:ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {		        
+        const payload = e.target.type === 'number'?parseInt(e.target.value):e.target.value
+        itemDispatch({type:name, payload})
+	}
+
+	const categoryOption = (ctg:ICategoryData, i:number) => {
+		const {category} = ctg;
+		return (
+			<option value={i}>{category}</option>
+		);
+	}
+	
+	const changeCategory = (evt:ChangeEvent<HTMLInputElement|HTMLSelectElement>) => {
+        const idx:number = parseInt(evt.target.value)
+        categoryDispatch({type:CategoryActionKind.SET_CATEGORY_IDX, payload:idx})
+		
+	}
+	
+	const renderOption = (subCtg:ISubOption, i:number) => <option key={i} value={i}>{subCtg.category}</option>
+
+	const changeOption = (evt:ChangeEvent<HTMLInputElement|HTMLSelectElement>) => {
+        const idx:number = parseInt(evt.target.value)
+		categoryDispatch({type:CategoryActionKind.SET_OPTION_IDX, payload:idx})
+	}
+	
+	const renderSubOption = (subSubCtg:ISubOption, i:number) => <option key={i} value={i}>{subSubCtg.category}</option>
+
+	const changeSubOption = (evt:ChangeEvent<HTMLInputElement|HTMLSelectElement>/*catIdx:number, subCatIdx:number*/) => {                
+       const idx:number = parseInt(evt.target.value);
+       categoryDispatch({type:CategoryActionKind.SET_SUBOPTION_IDX, payload:idx})
+	}
     const submitForm = async (e:SyntheticEvent) => {}
     return (
         <PageContainer>
@@ -36,14 +130,14 @@ export const EditProductForm:FunctionComponent = () => {
                                 <select 
                                     className='block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500' 
                                     id='grid-categories'
-                                    value={/*categoryIdx*/''}
-                                    onChange={(e)=>{/*changeCategory(e);*/}}
+                                    value={categoryIdx}
+                                    onChange={(e)=>{changeCategory(e)}}
                                 >                                    
-                                    {/*
+                                    {
                                         categories.map((ctg, i)=>{
                                             return <Fragment key={ctg._id}>{categoryOption(ctg, i)}</Fragment>
                                         })
-                                    */}
+                                    }
                                 </select>
                                 <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
                                     <svg className='fill-current h-4 w-4' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z'/></svg>
@@ -58,14 +152,14 @@ export const EditProductForm:FunctionComponent = () => {
                                 <select 
                                     className='block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500' 
                                     id='grid-options'
-                                    value={/*optionIdx*/''}
-                                    onChange={(e)=>{/*changeOption(e);*/}}
+                                    value={optionIdx}
+                                    onChange={(e)=>{changeOption(e)}}
                                 >                                    
-                                    {/*
+                                    {
                                         options.map((subCtg, i)=>{
                                             return <Fragment key={subCtg._id}>{renderOption(subCtg, i)}</Fragment>
                                         })
-                                    */}
+                                    }
                                 </select>
                                 <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
                                     <svg className='fill-current h-4 w-4' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z'/></svg>
@@ -80,18 +174,18 @@ export const EditProductForm:FunctionComponent = () => {
                                 <select 
                                     className='block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500' 
                                     id='grid-sub-options'
-                                    value={/*subOptionIdx*/''}
+                                    value={subOptionIdx}
                                     onChange={(e)=>{
-                                        //changeSubOption(e)
+                                        changeSubOption(e)
                                     }}
                                 >
-                                    {/*
+                                    {
                                         subOptions.length > 0?
                                         subOptions.map((subSubCtg, i)=>{
                                             return <Fragment key={subSubCtg._id}>{renderSubOption(subSubCtg, i)}</Fragment>
                                         }):
                                         <option>Not available</option>
-                                    */}
+                                    }
                                 </select>
                                 <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
                                     <svg className='fill-current h-4 w-4' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z'/></svg>
@@ -109,8 +203,8 @@ export const EditProductForm:FunctionComponent = () => {
                                 id='grid-product-name' 
                                 type='text' 
                                 placeholder='Product Name' 
-                                value={/*itemName*/''}
-                                onChange={/*handleChange(ItemActionKind.SET_NAME)*/()=>{}}
+                                value={itemName}
+                                onChange={handleChange(ItemActionKind.SET_NAME)}
                             />
                             {/*<p className='text-red-500 text-xs italic'>Please fill out this field.</p>*/}
                         </div>                        
@@ -125,9 +219,9 @@ export const EditProductForm:FunctionComponent = () => {
                                         type='radio'                                         
                                         name='new-item-radio' 
                                         className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2' 
-                                        checked={/*isNewItem */true}
+                                        checked={isNewItem}
                                         onChange={()=>{
-                                            //itemDispatch({type:ItemActionKind.SET_CONDITION, payload:true})
+                                            itemDispatch({type:ItemActionKind.SET_CONDITION, payload:true})
                                         }}                                        
                                     />
                                     <label htmlFor='new-item-radio' className='ml-2 text-sm font-medium text-gray-700'>New</label>
@@ -138,9 +232,9 @@ export const EditProductForm:FunctionComponent = () => {
                                         type='radio'                                         
                                         name='used-item-radio' 
                                         className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2' 
-                                        checked={/*!isNewItem*/false}
+                                        checked={!isNewItem}
                                         onChange={()=>{
-                                            //itemDispatch({type:ItemActionKind.SET_CONDITION, payload:false})
+                                            itemDispatch({type:ItemActionKind.SET_CONDITION, payload:false})
                                         }}
                                     />
                                     <label htmlFor='used-item-radio' className='ml-2 text-sm font-medium text-gray-700'>Used</label>
@@ -159,8 +253,8 @@ export const EditProductForm:FunctionComponent = () => {
                                 className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500' 
                                 id='grid-description' 
                                 placeholder='' 
-                                value={/*itemDescription*/''}
-                                onChange={/*handleChange(ItemActionKind.SET_DESCRIPTION)*/()=>{}}
+                                value={itemDescription}
+                                onChange={handleChange(ItemActionKind.SET_DESCRIPTION)}
                             />
                             <p className='text-gray-600 text-xs italic'>Make it as long and as crazy as you&apos;d like</p>
                         </div>
@@ -175,8 +269,8 @@ export const EditProductForm:FunctionComponent = () => {
                                 id='grid-price' 
                                 type='number' 
                                 placeholder='item price'
-                                value={/*price*/0}
-                                onChange={/*handleChange(ItemActionKind.SET_PRICE)*/()=>{}} 
+                                value={price}
+                                onChange={handleChange(ItemActionKind.SET_PRICE)} 
                             />
                         </div>
                         <div className='w-full md:w-1/2 px-3 mb-6 md:mb-0'>
@@ -188,10 +282,9 @@ export const EditProductForm:FunctionComponent = () => {
                                 id='grid-stock' 
                                 type='number' 
                                 placeholder='9999' 
-                                value={/*stock*/0}
+                                value={0}
                                 onChange={
-                                    //handleChange(ItemActionKind.SET_STOCK)
-                                    ()=>{}
+                                    handleChange(ItemActionKind.SET_STOCK)
                                 }
                             />
                         </div>
@@ -213,7 +306,7 @@ export const EditProductForm:FunctionComponent = () => {
                                         if(!imageFile){
                                             return
                                         }
-                                        //itemDispatch({type:ItemActionKind.SET_PIC, payload:imageFile})
+                                        itemDispatch({type:ItemActionKind.SET_NEW_PIC, payload:imageFile})
                                     }}
                                 />
                             </label>
@@ -242,8 +335,8 @@ export const EditProductForm:FunctionComponent = () => {
                     */}
                     <ButtonWithLoader
                         label='Create Product'
-                        loading={/*loading*/false}
-                        disabled={/*loading*/false}
+                        loading={false}
+                        disabled={false}
                         type='submit'
                     />
                 </form>
