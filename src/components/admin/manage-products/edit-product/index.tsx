@@ -2,20 +2,24 @@
 import { useState, useEffect, useReducer, FunctionComponent, SyntheticEvent, ChangeEvent, Fragment } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
+import axios from 'axios'
+import { toast } from 'react-toastify'
+import { generateSignature, generateSHA1 } from '@/utils/generateSignature'
 import { PageContainer } from '@/components/PageContainer'
 import { ButtonWithLoader } from '@/components/Buttons'
 import { getImgSrc } from '@/utils/api-access'
-import { ICategoryData, ISubOption } from '../../../../../types'
+import { ICategoryData, IProductCategory, ISubOption } from '../../../../../types'
 import { categoryReducer, categoryState as initCategories, getCategoryStructures, getCategoryIds, CategoryActionKind } from '../reducers/categoryReducer';
 import { initialItem, itemPropReducer, ItemActionKind } from '../reducers/itemPropsReducer';
 import { XCircle } from '@/components/Icons'
 
-const isAbsoluteUrl = (urlString:string) => {
+export const isAbsoluteUrl = (urlString:string) => {
     if (urlString.indexOf('http://') === 0 || urlString.indexOf('https://') === 0){
         return true
     }
     return false
 }
+
 export const EditProductForm:FunctionComponent = () => {
     const [categoryState, categoryDispatch] = useReducer(categoryReducer, initCategories)
     const [itemState, itemDispatch] = useReducer(itemPropReducer, initialItem)
@@ -65,11 +69,11 @@ export const EditProductForm:FunctionComponent = () => {
     }
 
     useEffect(()=>{
-        if(product){
-            const {productPic} = product
+        if(productPic && productPic!==''){
+            //const {productPic} = product
             getProductImgSrc(productPic)
         }
-    }, [product])
+    }, [productPic])
 
     useEffect(()=>{
         init()
@@ -126,7 +130,96 @@ export const EditProductForm:FunctionComponent = () => {
        const idx:number = parseInt(evt.target.value);
        categoryDispatch({type:CategoryActionKind.SET_SUBOPTION_IDX, payload:idx})
 	}
-    const submitForm = async (e:SyntheticEvent) => {}
+
+    const submitForm = async (e:SyntheticEvent) => {
+        //console.log('edit submitted')
+        e.preventDefault();
+
+		if(itemName === ''){
+			alert('Product name is required.');
+			return;
+		}
+        const {cloudName, apiKey, apiSecret} = dotEnv
+        let updatedPic = ''
+        setLoading(true)
+        if(newProductPic){                          
+            const formData = new FormData();
+            formData.append('file', newProductPic);
+            formData.append('upload_preset', 'nextcommerce');
+            //setLoading(true)                        
+            
+            try {
+                                
+                const response = await axios.post(
+                    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+                    formData
+                );
+                updatedPic = response.data.public_id
+                
+                //if this is edit form, remember to delete old item pic               
+                if(productPic !== ''){
+                    
+                    const timestamp = new Date().getTime();
+                    const signature = generateSHA1(generateSignature(productPic, apiSecret));
+                    const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`
+
+                    const deleteResponse = await axios.post(url, {
+                            public_id: productPic,
+                            signature: signature,
+                            api_key: apiKey,
+                            timestamp: timestamp,
+                        });
+
+                    console.log('deleteResponse : ', deleteResponse)
+                    
+                }          
+                itemDispatch({type:ItemActionKind.SET_NEW_PIC, payload:null}) 
+                itemDispatch({type:ItemActionKind.SET_PIC, payload:updatedPic})                                                                               
+            } catch (error) {
+                console.error(error);
+            }
+            
+            
+            
+        }
+        const categoryObj = getCategoryIds(categoryState)
+        //console.log('categoryObj : ', categoryObj)
+            
+        try{                
+            //console.log('updating item ....')          
+            const itemData:{
+                _id:string,
+                    itemName:string, itemDescription:string, price:number, stock:number, isNewItem:boolean,
+                        category:IProductCategory, productPic?:string
+            } = {
+                _id:product._id,
+                    itemName, itemDescription, price, stock, isNewItem,
+                        category:categoryObj
+            }
+
+            if(updatedPic !== ''){
+                itemData.productPic = updatedPic
+            }
+
+            const editItemResponse = await fetch('/api/admin/products/edit-product/',
+                {
+                    method: 'POST',
+                    body: JSON.stringify(itemData),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+            const editItemData = await editItemResponse.json()            
+            console.log(editItemData)
+            toast('Edit saved!', { hideProgressBar: false, autoClose: 2000, type: 'success' })                
+        }
+        catch(err){
+            console.log(err)
+        }
+        finally {
+            setLoading(false)
+        }
+    }
     return (
         <PageContainer>
             <div className='flex flex-col justify-center items-center '>
@@ -339,6 +432,7 @@ export const EditProductForm:FunctionComponent = () => {
                                         fill
                                         className={`object-cover rounded-lg`}
                                         src={productPic} 
+                                        key={productPic} 
                                         alt={itemName}
                                     />:
                                         <p>Loading...</p>                                    
@@ -368,8 +462,8 @@ export const EditProductForm:FunctionComponent = () => {
                     </div>                     
                     <ButtonWithLoader
                         label='Update Product'
-                        loading={false}
-                        disabled={false}
+                        loading={loading}
+                        disabled={loading}
                         type='submit'
                     />
                 </form>

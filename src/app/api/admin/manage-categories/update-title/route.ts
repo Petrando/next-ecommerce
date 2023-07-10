@@ -37,8 +37,7 @@ export async function POST(req:Request) {
             }
         }
     }
-    console.log(filterObj)
-    console.log(setObj)
+    
     try{        
         const editResult = await Category.updateOne(
             filterObj, 

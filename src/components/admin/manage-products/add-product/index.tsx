@@ -90,7 +90,7 @@ export const AddProduct:FunctionComponent = () => {
 			alert('Product name is required.');
 			return;
 		}
-        const {cloudName, apiKey, apiSecret} = dotEnv
+        const {cloudName} = dotEnv
         if(newProductPic){                          
             const formData = new FormData();
             formData.append('file', newProductPic);

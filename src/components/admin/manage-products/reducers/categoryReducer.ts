@@ -96,9 +96,6 @@ export const getCategoryStructures = (state:IState) => {
 
 export const getCategoryIds = (state:IState) => {
     const { mainCategories, categoryIdx, optionIdx, subOptionIdx } = state;
-    const categories = mainCategories.length > 0?mainCategories.map((d:ICategoryData)=>{
-        return {category:d.category, _id:d._id}
-    }):[]
     const category = mainCategories.length > 0?mainCategories[categoryIdx]:null
     const categoryId = category!==null?category._id:''
     const options = (category!==null && category.options !== undefined)?category.options:[]
@@ -108,25 +105,22 @@ export const getCategoryIds = (state:IState) => {
     const subOption = subOptions.length > 0?subOptions[subOptionIdx]:null
     const subOptionId = subOption!==null?subOption._id:''
 
-    let categoryObj:{
-        categoryId:string, 
-        option?:{
-            optionId:string,
-            subOption?:{
-                subOptionId:string
-            }
-        }
-    } = {
-        categoryId
+    let categoryObj:IProductCategory = {
+        categoryId,
+        option:{optionId}
     }
+    //this is for later, when option can be optional
+    /*    
     if(optionId!==''){
         if(categoryObj){
             categoryObj.option={optionId}
             if(subOptionId!==''){
                 categoryObj.option.subOption = {subOptionId}
             }
-        }
-        
+        }        
+    }*/
+    if(subOptionId!==''){
+        categoryObj.option.subOption = {subOptionId}
     }
 
     return categoryObj
