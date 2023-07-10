@@ -58,7 +58,6 @@ export const categoryReducer = (state:IState, action:IAction):IState => {
     }
 
     if(type === CategoryActionKind.INIT_FOR_EDIT){
-        console.log('INIT_FOR_EDIT, ', payload)
         if(typeof payload ==='object' && 'categoryId' in payload){
             const {mainCategories} = state
             const { categoryId, option:{optionId}} = payload

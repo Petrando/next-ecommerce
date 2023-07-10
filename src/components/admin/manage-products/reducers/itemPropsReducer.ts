@@ -33,7 +33,7 @@ export const initialItem:IItemProp = {
 
 export interface IAction {
     type: ItemActionKind;
-    payload? : File |  number | string | boolean | IProduct;
+    payload? : File |  number | string | boolean | IProduct | null;
 }
 
 export const itemPropReducer = (state:IItemProp, action:IAction) => {
@@ -56,6 +56,9 @@ export const itemPropReducer = (state:IItemProp, action:IAction) => {
         const stock = (typeof payload=== 'number' && payload > 0)?payload:0
         return Object.assign({}, state, {stock})
     }
+    if(type === ItemActionKind.SET_PIC){
+        return Object.assign({}, state, {productPic:payload})
+    }
     if(type === ItemActionKind.SET_NEW_PIC){
         return Object.assign({}, state, {newProductPic:payload})
     }
@@ -65,7 +68,7 @@ export const itemPropReducer = (state:IItemProp, action:IAction) => {
     if(type === ItemActionKind.INIT_ITEM_FOR_EDIT){
         //return Object.assign({}, state, initialItem)
         //console.log('in item reducer : ', payload, ', ')
-        if(typeof payload === 'object' && '_id' in payload){            
+        if(typeof payload === 'object' && payload!==null && '_id' in payload){            
             const {itemName, itemDescription, price, stock, isNewItem, productPic} = payload
             return Object.assign({}, state, {itemName, itemDescription, price, stock, isNewItem, productPic})
         }        

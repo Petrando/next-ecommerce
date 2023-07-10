@@ -121,9 +121,6 @@ export const AddProduct:FunctionComponent = () => {
                     });
                 const addItemData = await addItemResponse.json()
                 console.log(addItemData)
-                //setNewKtPic(undefined)
-                //lastly, update session with new ktPic
-                //update({ktPic:newPublicId})
                 toast('New item added!', { hideProgressBar: false, autoClose: 2000, type: 'success' })
                 itemDispatch({type:ItemActionKind.RESET_ITEM})
                 
@@ -318,7 +315,7 @@ export const AddProduct:FunctionComponent = () => {
                         </div>
                     </div>                             
                     <div className='flex flex-wrap w-full mt-3 mb-2'>
-                        <div className='w-full md:w-2/3 md:pr-3 mb-2 md:mb-0'>
+                        <div className='w-full md:w-1/2 md:pr-3 mb-2 md:mb-0'>
                             <label htmlFor='dropzone-file' className='flex flex-col justify-center items-center w-full h-64 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed cursor-pointer hover:bg-gray-100'>
                                 <div className='flex flex-col justify-center items-center pt-5 pb-6'>
                                     <svg aria-hidden='true' className='mb-3 w-10 h-10 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12'></path></svg>
@@ -334,12 +331,12 @@ export const AddProduct:FunctionComponent = () => {
                                         if(!imageFile){
                                             return
                                         }
-                                        itemDispatch({type:ItemActionKind.SET_PIC, payload:imageFile})
+                                        itemDispatch({type:ItemActionKind.SET_NEW_PIC, payload:imageFile})
                                     }}
                                 />
                             </label>
                         </div>
-                        <div className='w-full flex items-center justify-center md:w-1/3 mb-2 md:mb-0 overflow-hidden'>
+                        <div className='w-full flex items-center justify-center md:w-1/2 mb-2 md:mb-0 h-64 overflow-hidden'>
                             {
                                 newProductPic!==null ?
                                     <img 
