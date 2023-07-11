@@ -5,7 +5,7 @@ export const itemTotal = () => {
         const cart = localStorage.getItem('cart')
         if(cart){
             const Cart = JSON.parse(cart)
-            return JSON.parse(cart).length;
+            return Cart.length;
         }        
 		return 0;
 	}

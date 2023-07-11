@@ -1,6 +1,6 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
-import { NextAuthProvider } from './provider'
+import { NextEcommerceProvider } from './provider'
 import "react-toastify/dist/ReactToastify.css";
 import { Navbar } from '@/components/Navbar';
 
@@ -19,10 +19,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <NextAuthProvider>
+        <NextEcommerceProvider>
           <Navbar />
           {children}
-        </NextAuthProvider>
+        </NextEcommerceProvider>
       </body>
     </html>
   )

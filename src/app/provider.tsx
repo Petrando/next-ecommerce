@@ -6,18 +6,17 @@ import { SessionProvider } from 'next-auth/react';
 import { CartContext } from '@/context/cartContext';
 import { itemTotal } from '@/utils/helpers/cart-helper';
 import { ShoppingCart } from '@/components/Cart';
+import { DeleteProductDialog } from '@/components/admin/manage-products/delete-product';
 import { IProduct } from '../../types';
 type Props = {
   children?: React.ReactNode;
 };
 
-export const NextAuthProvider = ({ children }: Props) => {
+export const NextEcommerceProvider = ({ children }: Props) => {
     const [itemCount, setCount] = useState(0);
     const [ productToDelete, setToDelete ] = useState<IProduct | null>(null); 
 
     const pathname = usePathname()
-
-    console.log('itemCount : ', itemCount)
 
     useEffect(()=>{
       setCount(itemTotal())
@@ -34,12 +33,12 @@ export const NextAuthProvider = ({ children }: Props) => {
               {children}
               {(pathname === "/" || pathname === "/shop" || pathname.includes("/product/")) 
                 && <ShoppingCart />}
-              { /*productToDelete !== null &&
+              { productToDelete !== null &&
                 <DeleteProductDialog
                     product={productToDelete}
                     closeDialog={()=>{setToDelete(null);}}
                 />
-                */
+                
             }
           </CartContext.Provider>
         </SessionProvider>;

@@ -14,6 +14,7 @@ import { CartContext } from '@/context/cartContext';
 import { Edit, Trash, ShopingCart, Info, PlusCircle, MinusCircle, XCircle } from '../Icons';
 import { itemInCart, addItem, updateItem, removeItem } from '@/utils/helpers/cart-helper';
 import { IProduct, ICategoryData } from '../../../types';
+import { IDeleteProductDialog } from '../admin/manage-products/delete-product';
 
 interface IEditButton {
     product:IProduct;
@@ -219,6 +220,89 @@ export const ProductCard:FunctionComponent<IProductCard> = ({ product, cardIn })
                         </Link>
                     }                    
                 </div>
+            </div>
+        </div>
+    )
+}
+
+
+export const ProductToDeleteCard:FunctionComponent<IDeleteProductDialog> = ({ product, closeDialog}) => {
+    const [ deleteState, setDeleteState ] = useState(
+        {isLoading:false, deleteComplete:false, deleteResult:""});
+    const { itemName, itemDescription, myCategory, price, stock, isNewItem, productPic } = product;    
+
+    const { isLoading, deleteComplete, deleteResult } = deleteState;
+
+    return (
+        <div className="w-full md:w-1/2 lg:w-1/4 max-w-sm bg-white rounded-lg shadow-md">
+            <div className="w-full flex items-center justify-center">
+                <ProductPic productPic={productPic} />
+            </div>
+            <div className="px-5 pb-5 flex flex-col items-center">              
+                <span>
+                    <h5 className="text-xl font-semibold tracking-tight text-gray-900">
+                        {
+                            isLoading?`Deleting ${itemName}....`:
+                                deleteComplete?`${itemName} ${deleteResult}`:
+                                    `Delete ${itemName}?`
+                        }                        
+                    </h5>
+                </span>
+                <p className="text-base font-semibold text-gray-700">
+                    {itemDescription}
+                </p>
+                <span className="text-2xl font-bold text-gray-900">${price}</span>
+                <span className={`bg-lime-400 text-gray-600 text-sm font-medium mr-2 px-2.5 py-0.5 rounded`}>
+                    Added {moment(product.createdAt).fromNow()}
+                </span>             
+            </div>
+            <div className="w-full flex justify-end items-center py-2 pr-2 bg-purple-300">
+                {
+                    !deleteComplete &&
+                    <button
+                        className={`flex items-center text-white ${!isLoading?"bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300":"bg-zinc-600"}  font-medium rounded-lg text-xs px-1 py-1 text-center`}
+                        disabled={isLoading}
+                        onClick={async ()=>{
+                            setDeleteState({...deleteState, isLoading:true});
+                            /*
+                            deleteProduct(product._id, user._id, token)
+                                .then(res=>{
+                                    if(res.error){
+                                        console.log(res.error);
+                                        toast.error(res.error)
+                                    }
+                                    else{
+                                        toast.success(res.message); 
+                                        
+                                        if(res.message === "Delete product successful"){
+                                            setDeleteState({...deleteState, deleteResult:"deleted"});
+                                        }else{
+                                            setDeleteState({...deleteState, deleteResult:"de-activated"});
+                                        }
+                                    }
+                                    
+                                }).catch(err=>{
+                                    console.log(err);
+                                    toast.error(err);
+                                })
+                                .finally(()=>{
+                                    setDeleteState({...deleteState, isLoading:false, deleteComplete:true});
+                                })*/
+                        }}
+                    >
+                            <Trash dimensions="w-5 h-5" />
+                            DELETE
+                    </button>
+                }
+                
+                <button
+                    className="flex items-center text-white bg-orange-500 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-xs px-1 py-1 text-center"
+                    onClick={()=>{closeDialog();}}
+                >
+                        <XCircle dimensions="w-5 h-5" />
+                        Close
+                </button>
+                <EditButton product={product} />
             </div>
         </div>
     )

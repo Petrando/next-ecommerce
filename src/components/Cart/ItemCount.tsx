@@ -9,7 +9,6 @@ interface IItemCount {
 export const ItemCount:FunctionComponent<IItemCount> = ({ showIfItem }) => {
     
     const {total} = useContext(CartContext) || {};
-    console.log('total  : ', total)
     
     const countEl = () => {
         return (
@@ -20,7 +19,6 @@ export const ItemCount:FunctionComponent<IItemCount> = ({ showIfItem }) => {
     }
     if(showIfItem){
         if(total && total > 0){
-            console.log('here')
             return countEl();
         }        
 
