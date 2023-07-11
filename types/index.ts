@@ -60,3 +60,9 @@ export interface IProduct {
     createdAt: Date;
     updatedAt: Date;
 }
+
+interface IProductCount {
+    count:number;
+}
+
+export interface IProductInCart extends IProduct, IProductCount {}
