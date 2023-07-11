@@ -229,7 +229,8 @@ export const ProductCard:FunctionComponent<IProductCard> = ({ product, cardIn })
 export const ProductToDeleteCard:FunctionComponent<IDeleteProductDialog> = ({ product, closeDialog}) => {
     const [ deleteState, setDeleteState ] = useState(
         {isLoading:false, deleteComplete:false, deleteResult:""});
-    const { itemName, itemDescription, myCategory, price, stock, isNewItem, productPic } = product;    
+    const { itemName, itemDescription, myCategory, price, stock, isNewItem, productPic } = product;  
+    let { setToDelete } =  useContext(CartContext) || {}  
 
     const { isLoading, deleteComplete, deleteResult } = deleteState;
 
@@ -264,30 +265,28 @@ export const ProductToDeleteCard:FunctionComponent<IDeleteProductDialog> = ({ pr
                         disabled={isLoading}
                         onClick={async ()=>{
                             setDeleteState({...deleteState, isLoading:true});
-                            /*
-                            deleteProduct(product._id, user._id, token)
-                                .then(res=>{
-                                    if(res.error){
-                                        console.log(res.error);
-                                        toast.error(res.error)
-                                    }
-                                    else{
-                                        toast.success(res.message); 
-                                        
-                                        if(res.message === "Delete product successful"){
-                                            setDeleteState({...deleteState, deleteResult:"deleted"});
-                                        }else{
-                                            setDeleteState({...deleteState, deleteResult:"de-activated"});
-                                        }
-                                    }
-                                    
-                                }).catch(err=>{
-                                    console.log(err);
-                                    toast.error(err);
-                                })
-                                .finally(()=>{
-                                    setDeleteState({...deleteState, isLoading:false, deleteComplete:true});
-                                })*/
+                            try{
+                                const response = await fetch('/api/admin/products/delete-product/',
+                                {
+                                    method: 'POST',
+                                    body: JSON.stringify({_id:product._id}),
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                });
+
+                                const deleteResponse = await response.json()
+                                console.log('deleteResponse : ', deleteResponse)
+                                if(typeof setToDelete === 'function'){
+                                    setToDelete(null)
+                                }                                                                
+                            }
+                            catch(err){
+
+                            }
+                            finally{
+                                setDeleteState({...deleteState, isLoading:false})
+                            }
                         }}
                     >
                             <Trash dimensions="w-5 h-5" />
