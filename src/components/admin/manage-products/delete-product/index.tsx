@@ -13,6 +13,12 @@ export interface IDeleteProductDialog {
 
 export const DeleteProductDialog:FunctionComponent<IDeleteProductDialog> = ({product, closeDialog}) => {
     const {data:session} = useSession()
+    const isAdmin = session?.user.role === 'admin'
+
+    if(!isAdmin){
+        return <></>
+    }
+    
     return (
         <FullscreenBaseModal>
             <ProductToDeleteCard
