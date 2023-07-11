@@ -1,8 +1,7 @@
 import { useState, useEffect, useContext, FunctionComponent, ChangeEvent } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 //import { getCategories, searchList } from '../../api/api-core';
-//import { ShopContext } from '../../ShopContext';
-import { DummyShopContext } from './ProductCard';
+import { CartContext } from '@/context/cartContext';
 import { ResetableSearch, SelectInput } from './Inputs';
 import { ProductCard } from './ProductCard';
 import { ICategoryData, IProduct } from '../../types';
@@ -46,7 +45,7 @@ export const Search: FunctionComponent<ISearch> = ({ toggleSearchResultDisplayed
 	const [currentPage, setCurrentPage] = useState(0);
 	const [maxPageReached, setMaxPageReached] = useState(false);
 
-	const { productToDelete } = DummyShopContext;// useContext(ShopContext);
+	const { productToDelete } =  useContext(CartContext) || {};
 
 	const loadCategories = async () => {		
         try{

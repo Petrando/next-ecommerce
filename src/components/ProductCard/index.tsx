@@ -9,25 +9,17 @@ import moment from 'moment';
 import { ProductPic } from './ProductPic';
 //import { isAuthenticated } from '../../../api/api-auth';
 //import { deleteProduct } from '../../../api/api-admin.js';
-//import { ShopContext } from '../../../ShopContext';
-//import { ProductPic } from './ProductPic';
+import { CartContext } from '@/context/cartContext';
 //import { Edit, Trash, ShopingCart, Info, PlusCircle, MinusCircle, XCircle } from '../Icons';
 import { Edit, Trash, ShopingCart, Info, PlusCircle, MinusCircle, XCircle } from '../Icons';
-//import { itemInCart, addItem, updateItem, removeItem } from '../../../utils/cart-helper';
+import { itemInCart, addItem, updateItem, removeItem } from '@/utils/helpers/cart-helper';
 import { IProduct, ICategoryData } from '../../../types';
-
-export const DummyShopContext = {
-    total: 0,
-    setItemCount: (param:number)=>{},
-    setToDelete: (param:any)=>{},
-    productToDelete: null
-}
 
 interface IEditButton {
     product:IProduct;
 }
 const EditButton:FunctionComponent<IEditButton> = ({ product }) => {
-    let { setToDelete } = DummyShopContext;// useContext(ShopContext);
+    let { setToDelete } =  useContext(CartContext) || {};
     return (
         <Link 
             href={{
@@ -35,7 +27,11 @@ const EditButton:FunctionComponent<IEditButton> = ({ product }) => {
                 query: {product:JSON.stringify(product)}
             }}             
             className="flex items-center text-white bg-teal-700 hover:bg-teal-800 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-xs px-1 py-1 text-center"    
-            onClick={()=>{setToDelete(null);}}
+            onClick={()=>{
+                if(setToDelete){
+                    setToDelete(null)
+                }
+            }}
         >            
             <Edit dimensions="w-5 h-5" />
             Edit
@@ -49,7 +45,7 @@ interface IProductCard {
 }
 
 export const ProductCard:FunctionComponent<IProductCard> = ({ product, cardIn }) => {
-    const [isInCart, setInCart] = useState(false);//(itemInCart(product._id));
+    const [isInCart, setInCart] = useState((itemInCart(product._id)));
     const {itemName, itemDescription, myCategory, price, stock, isNewItem, productPic} = product;
 
     const {data:session, update, status} = useSession()
@@ -57,7 +53,7 @@ export const ProductCard:FunctionComponent<IProductCard> = ({ product, cardIn })
 
     const pathname = usePathname()
     
-    let { total, setItemCount, setToDelete } = DummyShopContext;// useContext(ShopContext);
+    let { total, setItemCount, setToDelete } =  useContext(CartContext) || {};
 
     const showIsNew = () => {
         const color = isNewItem?"blue":"gray";
@@ -78,7 +74,7 @@ export const ProductCard:FunctionComponent<IProductCard> = ({ product, cardIn })
     }
 
     const cartButton = () => {
-        const canAddToCart = !isAdmin//((user && user.role===0) || !user) && !isInCart;        
+        const canAddToCart = !isAdmin && !isInCart;        
         
         const hoverColor = canAddToCart?"hover:bg-blue-800":"";
         const colorAndBg = canAddToCart?"text-white bg-blue-700":"text-green-600 bg-blue-200";
@@ -87,9 +83,13 @@ export const ProductCard:FunctionComponent<IProductCard> = ({ product, cardIn })
             <button 
                 className={`flex items-center ${colorAndBg} ${hoverColor} focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs px-1 py-1 text-center`}
                 onClick={()=>{
-                    if(canAddToCart){                        
-                        //addItem(product, () => {});
-                        setItemCount(total + 1);
+                    if(canAddToCart){   
+                        console.log('can add')     
+                        addItem(product, () => {});
+                        if(typeof setItemCount !=='undefined' && typeof total !== 'undefined'){
+                            setItemCount(total + 1);
+                        }
+                        
                         setInCart(true);
                     }
                 }}
@@ -102,8 +102,11 @@ export const ProductCard:FunctionComponent<IProductCard> = ({ product, cardIn })
                 <button 
                     className={`flex items-center text-white bg-rose-600 hover:bg-rose-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs px-1 py-1 text-center`}
                     onClick={()=>{
-                        //removeItem(product._id, () => {});
-                        setItemCount(total - 1)
+                        removeItem(product._id, () => {});
+                        if(typeof setItemCount !=='undefined' && typeof total !== 'undefined'){
+                            setItemCount(total - 1)
+                        }
+                        
                         setInCart(false);
                     }}
                 >
@@ -124,7 +127,7 @@ export const ProductCard:FunctionComponent<IProductCard> = ({ product, cardIn })
             //(myCategoryStructure.options && !myCategoryStructure.options.)
         //typeof myCategoryStructure.options.options.category!=="undefined"?
 								   //" > " + myCategoryStructure.options.options.category:"";	
-        console.log('myCategoryStructure : ', myCategoryStructure)
+        
         const myOptionText = myCategoryStructure.options?myCategoryStructure.options.category:'';
         const mySubOptionText = (myCategoryStructure.options && myCategoryStructure.options.options)?
             (" > " + myCategoryStructure.options.options.category):''
@@ -191,7 +194,10 @@ export const ProductCard:FunctionComponent<IProductCard> = ({ product, cardIn })
                             <button
                                 className="flex items-center text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-xs px-1 py-1 text-center"
                                 onClick={()=>{
-                                    setToDelete(product);                                    
+                                    if(typeof setToDelete !== 'undefined'){
+                                        setToDelete(product);                                    
+                                    }
+                                    
                                 }}
                             >
                                     <Trash dimensions="w-5 h-5" />

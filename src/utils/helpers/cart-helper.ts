@@ -3,9 +3,10 @@ import { IProductInCart, IProduct } from '../../../types';
 export const itemTotal = () => {
 	if(typeof window !== 'undefined'){
         const cart = localStorage.getItem('cart')
-		if(Array.isArray(cart)){            
-			return JSON.parse(cart).length;
-		}
+        if(cart){
+            const Cart = JSON.parse(cart)
+            return JSON.parse(cart).length;
+        }        
 		return 0;
 	}
 }
@@ -31,8 +32,9 @@ export const itemInCart = (itemId:string) => {
 }
 
 export const updateItem = (productId:string, count:number) => {
-    const cart = localStorage.getItem('cart');
+    
     if (typeof window !== 'undefined') {
+        const cart = localStorage.getItem('cart');
         if(cart) {
             const Cart = JSON.parse(cart);
 
@@ -48,19 +50,19 @@ export const updateItem = (productId:string, count:number) => {
 };
 
 export const addItem = (item:IProduct, next:any) => {
-	const cart = localStorage.getItem('cart');
 	if(typeof window !== 'undefined'){
-		if(cart){
-			const Cart = JSON.parse(cart);
-            Cart.push({...item, count:1});
+        const cart = localStorage.getItem('cart');
+		
+        const Cart = cart?JSON.parse(cart):[];
+        Cart.push({...item, count:1});
 
-            const uniqueCarts = Array.from(new Set(Cart.map((p:IProductInCart) => p._id)))
-                .map(id => {
-                    return Cart.find((p:IProductInCart) => p._id === id);
-                })
+        const uniqueItems = Array.from(new Set(Cart.map((p:IProductInCart) => p._id)))
+            .map(id => {
+                return Cart.find((p:IProductInCart) => p._id === id);
+            })
 
-            localStorage.setItem('cart', JSON.stringify(uniqueCarts));
-		}										
+        localStorage.setItem('cart', JSON.stringify(uniqueItems));
+									
 		next();
 	}
 }
