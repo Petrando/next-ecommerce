@@ -5,7 +5,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { PageContainer } from '@/components/PageContainer';
 import { ButtonWithLoader } from '@/components/Buttons';
-import { ICategoryData, ISubOption } from '../../../../../types';
+import { CategorySelection } from '../shared-components/CategorySelection';
 import { categoryReducer, categoryState as initCategories, getCategoryStructures, getCategoryIds, CategoryActionKind } from '../reducers/categoryReducer';
 import { initialItem, itemPropReducer, ItemActionKind } from '../reducers/itemPropsReducer';
 
@@ -22,8 +22,7 @@ export const AddProduct:FunctionComponent = () => {
     const {categoryIdx, optionIdx, subOptionIdx} = categoryState
     const {categories, options, subOptions} = getCategoryStructures(categoryState)
 
-    const [loading, setLoading] = useState<boolean>(false)
-	const [redirect, setRedirect] = useState<boolean>(false);	
+    const [loading, setLoading] = useState<boolean>(false)	
 	
 	const init = async () => {
         setLoading(true)
@@ -55,28 +54,16 @@ export const AddProduct:FunctionComponent = () => {
         const payload = e.target.type === 'number'?parseInt(e.target.value):e.target.value
         itemDispatch({type:name, payload})
 	}
-
-	const categoryOption = (ctg:ICategoryData, i:number) => {
-		const {category} = ctg;
-		return (
-			<option value={i}>{category}</option>
-		);
-	}
 	
 	const changeCategory = (evt:ChangeEvent<HTMLInputElement|HTMLSelectElement>) => {
         const idx:number = parseInt(evt.target.value)
-        categoryDispatch({type:CategoryActionKind.SET_CATEGORY_IDX, payload:idx})
-		
+        categoryDispatch({type:CategoryActionKind.SET_CATEGORY_IDX, payload:idx})		
 	}
-	
-	const renderOption = (subCtg:ISubOption, i:number) => <option key={i} value={i}>{subCtg.category}</option>
 
 	const changeOption = (evt:ChangeEvent<HTMLInputElement|HTMLSelectElement>) => {
         const idx:number = parseInt(evt.target.value)
 		categoryDispatch({type:CategoryActionKind.SET_OPTION_IDX, payload:idx})
-	}
-	
-	const renderSubOption = (subSubCtg:ISubOption, i:number) => <option key={i} value={i}>{subSubCtg.category}</option>
+	}		
 
 	const changeSubOption = (evt:ChangeEvent<HTMLInputElement|HTMLSelectElement>/*catIdx:number, subCatIdx:number*/) => {                
        const idx:number = parseInt(evt.target.value);
@@ -146,79 +133,27 @@ export const AddProduct:FunctionComponent = () => {
                     onSubmit={(e) => submitForm(e)}
                 >
                     <div className='flex flex-wrap -mx-3 mb-2'>
-                        <div className='w-full md:w-1/3 px-3 mb-6 md:mb-0'>
-                            <label 
-                                className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2' 
-                                htmlFor='grid-categories'
-                            >
-                                Category
-                            </label>
-                            <div className='relative'>
-                                <select 
-                                    className='block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500' 
-                                    id='grid-categories'
-                                    value={categoryIdx}
-                                    onChange={(e)=>{changeCategory(e);}}
-                                >                                    
-                                    {
-                                        categories.map((ctg, i)=>{
-                                            return <Fragment key={ctg._id}>{categoryOption(ctg, i)}</Fragment>
-                                        })
-                                    }
-                                </select>
-                                <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
-                                    <svg className='fill-current h-4 w-4' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z'/></svg>
-                                </div>
-                            </div>
-                        </div>
-                        <div className='w-full md:w-1/3 px-3 mb-6 md:mb-0'>
-                            <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2' htmlFor='grid-options'>
-                                Option
-                            </label>
-                            <div className='relative'>
-                                <select 
-                                    className='block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500' 
-                                    id='grid-options'
-                                    value={optionIdx}
-                                    onChange={(e)=>{changeOption(e);}}
-                                >                                    
-                                    {
-                                        options.map((subCtg, i)=>{
-                                            return <Fragment key={subCtg._id}>{renderOption(subCtg, i)}</Fragment>
-                                        })
-                                    }
-                                </select>
-                                <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
-                                    <svg className='fill-current h-4 w-4' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z'/></svg>
-                                </div>
-                            </div>
-                        </div>
-                        <div className='w-full md:w-1/3 px-3 mb-6 md:mb-0'>
-                            <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2' htmlFor='grid-sub-options'>
-                                Sub Option
-                            </label>
-                            <div className='relative'>
-                                <select 
-                                    className='block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500' 
-                                    id='grid-sub-options'
-                                    value={subOptionIdx}
-                                    onChange={(e)=>{
-                                        changeSubOption(e)
-                                    }}
-                                >
-                                    {
-                                        subOptions.length > 0?
-                                        subOptions.map((subSubCtg, i)=>{
-                                            return <Fragment key={subSubCtg._id}>{renderSubOption(subSubCtg, i)}</Fragment>
-                                        }):
-                                        <option>Not available</option>
-                                    }
-                                </select>
-                                <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
-                                    <svg className='fill-current h-4 w-4' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z'/></svg>
-                                </div>
-                            </div>
-                        </div>
+                        <CategorySelection 
+                            label='Category'
+                            id='grid-categories'
+                            value={categoryIdx}
+                            onChange={(e)=>{changeCategory(e);}}
+                            options={categories}
+                        />
+                        <CategorySelection 
+                            label='Options'
+                            id='grid-option'
+                            value={optionIdx}
+                            onChange={(e)=>{changeOption(e);}}
+                            options={options}
+                        />
+                        <CategorySelection 
+                            label='Sub Options'
+                            id='grid-sub-option'
+                            value={subOptionIdx}
+                            onChange={(e)=>{changeSubOption(e);}}
+                            options={subOptions}
+                        />
                     </div>
                     <div className='flex flex-wrap -mx-3 mb-6'>
                         <div className='w-full md:w-2/3 px-3 mb-6 md:mb-0'>

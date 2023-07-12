@@ -14,7 +14,7 @@ interface Required {
 interface InputParams  {
     id?:string|null; 
     type?:HTMLInputTypeAttribute; 
-    height?:Number|string; 
+    height?:number|string; 
     placeholder?:string; 
     value?:string; 
     disabled?:boolean; 
