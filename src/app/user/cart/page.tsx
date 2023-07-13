@@ -3,7 +3,7 @@ import Head from 'next/head'
 
 const Cart:FunctionComponent = () => {
     return (
-        <div className='w-full flex items-center justify-center h-screen bg-cyan-200'>
+        <div className='min-h-screen bg-cyan-200'>
             <Head>
                 <title>User Cart</title>
             </Head>

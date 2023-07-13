@@ -54,7 +54,7 @@ export const AddProduct:FunctionComponent = () => {
 		init();		
 	}, []);
 
-    const handleChange = (name:ItemActionKind) => (e:ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {		        
+    const changeProp = (name:ItemActionKind) => (e:ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {		        
         const payload = (e.target.id === 'price' || e.target.id === 'stock')?
             parseInt(e.target.value):e.target.value
         itemDispatch({type:name, payload})
@@ -136,7 +136,7 @@ export const AddProduct:FunctionComponent = () => {
                     <div className='flex flex-wrap -mx-3 mb-6'>
                         <div className='w-full md:w-2/3 px-3 mb-6 md:mb-0'>
                             <LabelledInput label='Product Name' id='product-name' value={itemName} 
-                                onChange={handleChange(ItemActionKind.SET_NAME)} disabled={loading}
+                                onChange={changeProp(ItemActionKind.SET_NAME)} disabled={loading}
                                 required={{
                                     reqMessage:'Item name still empty'                                    
                                 }}
@@ -163,7 +163,7 @@ export const AddProduct:FunctionComponent = () => {
                             <LabelledInput inputType='textarea' rows={4} id='product-description'
                                 label='Description' labelStyle={formLabelStyle} inputStyle={formInputStype}
                                 value={itemDescription} disabled={loading}
-                                onChange={handleChange(ItemActionKind.SET_DESCRIPTION)}
+                                onChange={changeProp(ItemActionKind.SET_DESCRIPTION)}
                                 required={{
                                     reqMessage:'Must write product description'
                                 }}
@@ -174,7 +174,7 @@ export const AddProduct:FunctionComponent = () => {
                     <div className='flex flex-wrap -mx-3 mb-2'>
                         <div className='w-full md:w-1/2 px-3 mb-6 md:mb-0'>
                             <LabelledInput label='Price($)' id='price' value={price.toString()}
-                                onChange={handleChange(ItemActionKind.SET_PRICE)}
+                                onChange={changeProp(ItemActionKind.SET_PRICE)}
                                 labelStyle={formLabelStyle} inputStyle={formInputStype}
                                 required={{reqMessage:'Must supply price', pattern:'[0-9]',
                                     patternMessage:'Price must be number'}}                              
@@ -182,7 +182,7 @@ export const AddProduct:FunctionComponent = () => {
                         </div>
                         <div className='w-full md:w-1/2 px-3 mb-6 md:mb-0'>
                             <LabelledInput label='Stock' id='stock' value={stock.toString()}
-                                onChange={handleChange(ItemActionKind.SET_STOCK)}
+                                onChange={changeProp(ItemActionKind.SET_STOCK)}
                                 labelStyle={formLabelStyle} inputStyle={formInputStype}
                                 required={{reqMessage:'Must supply item stock', pattern:'[0-9]',
                                     patternMessage:'Stock must be number'                                    
@@ -192,18 +192,7 @@ export const AddProduct:FunctionComponent = () => {
                     </div>                             
                     <UpdatePic newProductPic={newProductPic} itemName={itemName}
                         setNewPic={(newPic)=>{itemDispatch({type:ItemActionKind.SET_NEW_PIC, payload:newPic})}} 
-                    />
-                    {/*
-                    <div className='flex flex-wrap -mx-3 mb-6'>
-                        <div className='w-full px-3'>
-                            <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2' htmlFor='grid-password'>
-                                Password
-                            </label>
-                            <input className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500' id='grid-password' type='password' placeholder='******************' />
-                            <p className='text-gray-600 text-xs italic'>Make it as long and as crazy as you'd like</p>
-                        </div>
-                    </div>
-                    */}
+                    />                    
                     <ButtonWithLoader
                         label='Create Product'
                         loading={loading}

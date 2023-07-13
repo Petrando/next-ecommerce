@@ -2,7 +2,7 @@ import { ProductList } from '@/components/ProductList'
 
 export default async function Home() {
   return (
-    <div className='w-screen h-screen flex justify-center items-start'>
+    <div className='bg-teal-200 min-h-screen'>
       <ProductList />
     </div>
   )

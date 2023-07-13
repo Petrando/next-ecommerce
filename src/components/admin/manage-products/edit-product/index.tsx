@@ -37,7 +37,6 @@ export const EditProductForm:FunctionComponent = () => {
     const product = productString?JSON.parse(productString):null
     
     const init = async () => {
-        const { category } = product
         setLoading(true)
 		try{
             const response = await fetch('/api/categories/list-categories')
@@ -84,7 +83,7 @@ export const EditProductForm:FunctionComponent = () => {
     useEffect(()=>{
         if(product!==null && mainCategories.length> 0){
             if(!categoryInitialized){
-                console.log('this called!?')
+                //console.log('this called!?')
                 const {category} = product
                 categoryDispatch({type:CategoryActionKind.INIT_FOR_EDIT, payload:category})
                 setCategoryInitialized(true)
@@ -94,7 +93,7 @@ export const EditProductForm:FunctionComponent = () => {
         
     }, [product, mainCategories.length, categoryInitialized])
 
-    const handleChange = (name:ItemActionKind) => (e:ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {		        
+    const changeProp = (name:ItemActionKind) => (e:ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {		        
         const payload = (e.target.id === 'price' || e.target.id === 'stock')?
             parseInt(e.target.value):e.target.value
         itemDispatch({type:name, payload})
@@ -219,7 +218,7 @@ export const EditProductForm:FunctionComponent = () => {
                     <div className='flex flex-wrap -mx-3 mb-6'>
                     <div className='w-full md:w-2/3 px-3 mb-6 md:mb-0'>
                             <LabelledInput label='Product Name' id='product-name' value={itemName} 
-                                onChange={handleChange(ItemActionKind.SET_NAME)} disabled={loading}
+                                onChange={changeProp(ItemActionKind.SET_NAME)} disabled={loading}
                                 required={{
                                     reqMessage:'Item name still empty'                                    
                                 }}
@@ -246,7 +245,7 @@ export const EditProductForm:FunctionComponent = () => {
                             <LabelledInput inputType='textarea' rows={4} id='product-description'
                                 label='Description' labelStyle={formLabelStyle} inputStyle={formInputStype}
                                 value={itemDescription} disabled={loading}
-                                onChange={handleChange(ItemActionKind.SET_DESCRIPTION)}
+                                onChange={changeProp(ItemActionKind.SET_DESCRIPTION)}
                                 required={{
                                     reqMessage:'Must write product description'
                                 }}
@@ -257,7 +256,7 @@ export const EditProductForm:FunctionComponent = () => {
                     <div className='flex flex-wrap -mx-3 mb-2'>
                         <div className='w-full md:w-1/2 px-3 mb-6 md:mb-0'>
                             <LabelledInput label='Price($)' id='price' value={price.toString()}
-                                onChange={handleChange(ItemActionKind.SET_PRICE)}
+                                onChange={changeProp(ItemActionKind.SET_PRICE)}
                                 labelStyle={formLabelStyle} inputStyle={formInputStype}
                                 required={{reqMessage:'Must supply price', pattern:'[0-9]',
                                     patternMessage:'Price must be number'}}                              
@@ -265,7 +264,7 @@ export const EditProductForm:FunctionComponent = () => {
                         </div>
                         <div className='w-full md:w-1/2 px-3 mb-6 md:mb-0'>
                             <LabelledInput label='Stock' id='stock' value={stock.toString()}
-                                onChange={handleChange(ItemActionKind.SET_STOCK)}
+                                onChange={changeProp(ItemActionKind.SET_STOCK)}
                                 labelStyle={formLabelStyle} inputStyle={formInputStype}
                                 required={{reqMessage:'Must supply item stock', pattern:'[0-9]',
                                     patternMessage:'Stock must be number'                                    
