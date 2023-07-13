@@ -62,16 +62,16 @@ export const LoginForm = () => {
                 >
                     <div className='mb-4'>
                         <LabelledInput
-                            label='Nama Pengguna'
+                            label='Username'
                             id='username' 
                             type='text'                             
                             value={username} 
                             onChange={(e)=>{setUsername(e.target.value)}}
                             disabled={loading}
                             required={{
-                                reqMessage:'Nama Pengguna belum ada',
+                                reqMessage:'Username still empty',
                                 pattern:'[a-zA-Z]+[a-zA-Z ]+',
-                                patternMessage:'Nama harus huruf atau spasi'
+                                patternMessage:'Username consists of letters and space(s)'
                             }}                            
                         />                    
                     </div>
@@ -85,31 +85,31 @@ export const LoginForm = () => {
                             onChange={(e)=>{setPassword(e.target.value)}}
                             disabled={loading}
                             required={{
-                                reqMessage:'Password masih kosong',
+                                reqMessage:'Password still empty',
                                 minLength: 6,
-                                patternMessage:'password minimal 6 karakter'
+                                patternMessage:'Password must at least 6 characters'
                                 
                             }}                            
                         />
                     </div>
                     <div className='flex items-center justify-between'>
                         <ButtonWithLoader
-                            label='Masuk'
+                            label='Log In'
                             loading={loading}  
                             disabled={loading}
                             type='submit'
                         />
                         
                         <div className='flex flex-col items-center'>
-                            <p className='text-zinc-600 text-xs italic'>Belum mendaftar?</p>   
+                            <p className='text-zinc-600 text-xs italic'>Not a member?</p>   
                             <Link href='/register' className='inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800'>
-                                Buat akun
+                                Create Account
                             </Link>
                         </div>
                     </div>
                 </form>
                 <p className='text-center text-gray-500 text-xs'>
-                    &copy;2023 Hak Cipta dilindungi Hukum Karma.
+                    &copy;2023 Protection under Carmic Laws.
                 </p>
             </div>
             <ToastContainer />

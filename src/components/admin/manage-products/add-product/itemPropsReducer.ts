@@ -44,11 +44,11 @@ export const itemPropReducer = (state:IItemProp, action:IAction) => {
         return Object.assign({}, state, {itemDescription:payload})
     }
     if(type === ItemActionKind.SET_PRICE){
-        const price = (typeof payload=== 'number' && payload > 0)?payload:0
+        const price = (typeof payload=== 'number' && payload && payload > 0)?payload:0
         return Object.assign({}, state, {price})
     }
     if(type === ItemActionKind.SET_STOCK){
-        const stock = (typeof payload=== 'number' && payload > 0)?payload:0
+        const stock = (typeof payload=== 'number' && payload && payload > 0)?payload:0
         return Object.assign({}, state, {stock})
     }
     if(type === ItemActionKind.SET_PIC){

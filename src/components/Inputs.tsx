@@ -15,13 +15,17 @@ interface InputParams  {
     id?:string|null; 
     type?:HTMLInputTypeAttribute; 
     height?:number|string; 
+    rows?:number;
     placeholder?:string; 
     value?:string; 
     disabled?:boolean; 
     required?: Required; 
-    onChange?: ChangeEventHandler<HTMLInputElement>
+    onChange?: ChangeEventHandler<HTMLInputElement|HTMLTextAreaElement>;
+    inputStyle?: string;
 }
-export const Input:FunctionComponent<InputParams> = ({id, type, height, placeholder, value, disabled, required, onChange}) => {
+
+export const Input:FunctionComponent<InputParams> = ({id, type, height, placeholder, value, disabled, 
+    required, onChange, inputStyle}) => {
     const inputRef = useRef(null)
     //inputRef?.current?    
     /*
@@ -35,9 +39,10 @@ export const Input:FunctionComponent<InputParams> = ({id, type, height, placehol
             }
         }
     }, [inputRef?.current])*/
+    const className = inputStyle?inputStyle:`shadow appearance-none border rounded w-full ${height?height:''} py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`
     return (
         <input 
-            className={`shadow appearance-none border rounded w-full ${height?height:''} py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`} 
+            className={className} 
             id={id?id:''} 
             type={type?type:'text'} 
             placeholder={placeholder?placeholder:''} 
@@ -56,14 +61,68 @@ export const Input:FunctionComponent<InputParams> = ({id, type, height, placehol
                     e.target.setCustomValidity(required?.reqMessage?required.reqMessage:'')
                 }
                 if(patternMismatch){
-                    e.target.setCustomValidity(required?.patternMessage?required.patternMessage:'Pola tidak cocok')
+                    e.target.setCustomValidity(required?.patternMessage?required.patternMessage:'Pattern mismatch')
                 }
                 
             }}
             onInput={(e: React.ChangeEvent<HTMLInputElement>) => {  
                 const {patternMismatch} = e.target.validity
                 if(patternMismatch){
-                    e.target.setCustomValidity(required?.patternMessage?required.patternMessage:'Pola tidak cocok')
+                    e.target.setCustomValidity(required?.patternMessage?required.patternMessage:'Pattern mismatch')
+                }else{
+                    e.target.setCustomValidity('')
+                }              
+                
+            }}        
+            ref={inputRef}
+        />
+    );
+}
+
+export const TextArea:FunctionComponent<InputParams> = ({id, rows, height, placeholder, value, disabled, 
+    required, onChange, inputStyle}) => {
+    const inputRef = useRef(null)
+    //inputRef?.current?    
+    /*
+    useEffect(()=>{
+        if(inputRef?.current){
+            if(required){
+                if(required.pattern){
+                    inputRef.current.pattern = required.pattern
+                }
+                
+            }
+        }
+    }, [inputRef?.current])*/
+    const className = inputStyle?inputStyle:`shadow appearance-none border rounded w-full ${height?height:''} py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`
+    return (
+        <textarea 
+            className={className} 
+            id={id?id:''} 
+            placeholder={placeholder?placeholder:''} 
+            value={value?value:''} 
+            onChange={(e)=>{
+                if(typeof onChange === 'function'){
+                    onChange(e)
+                }
+            }}
+            rows={rows?rows:1}
+            disabled={disabled?disabled:false}
+            required={required?true:false}
+            onInvalid={(e: React.ChangeEvent<HTMLTextAreaElement>) => { 
+                const { valueMissing, patternMismatch } = e.target.validity
+                if(valueMissing){
+                    e.target.setCustomValidity(required?.reqMessage?required.reqMessage:'')
+                }
+                if(patternMismatch){
+                    e.target.setCustomValidity(required?.patternMessage?required.patternMessage:'Pattern mismatch')
+                }
+                
+            }}
+            onInput={(e: React.ChangeEvent<HTMLTextAreaElement>) => {  
+                const {patternMismatch} = e.target.validity
+                if(patternMismatch){
+                    e.target.setCustomValidity(required?.patternMessage?required.patternMessage:'Pattern mismatch')
                 }else{
                     e.target.setCustomValidity('')
                 }              
@@ -75,18 +134,27 @@ export const Input:FunctionComponent<InputParams> = ({id, type, height, placehol
 }
 
 interface InputLabel {
-    label:string
+    inputType?:"input"|"textarea";
+    label:string;
+    labelStyle?:string;
+    inputStyle?:string;
 }
 
 type LabelledInputParams = InputLabel & InputParams
 
-export const LabelledInput:FunctionComponent<LabelledInputParams> = ({label, ...rest}) => {
+export const LabelledInput:FunctionComponent<LabelledInputParams> = ({label, labelStyle, inputType, ...rest}) => {
+    const className= labelStyle?labelStyle:'block text-gray-700 text-sm font-bold mb-2'
     return (
         <>
-            <label className='block text-gray-700 text-sm font-bold mb-2' htmlFor={rest?.id?rest.id:''}>
+            <label className={className} htmlFor={rest?.id?rest.id:''}>
                 { label }
             </label>
-            <Input {...rest} />
+            {
+                !inputType || inputType === "input"?
+                    <Input {...rest} />:
+                        <TextArea {...rest} />
+            }
+            
         </>
     )
 }
@@ -123,7 +191,7 @@ export const PasswordInput:FunctionComponent<PasswordInputParams> = ({id, placeh
                     e.target.setCustomValidity(required?.reqMessage?required.reqMessage:'')
                 }
                 if(patternMismatch || tooShort){
-                    e.target.setCustomValidity(required?.patternMessage?required.patternMessage:'Pola tidak cocok')
+                    e.target.setCustomValidity(required?.patternMessage?required.patternMessage:'Pattern mismatch')
                 }
                 
                 
@@ -131,7 +199,7 @@ export const PasswordInput:FunctionComponent<PasswordInputParams> = ({id, placeh
             onInput={(e: React.ChangeEvent<HTMLInputElement>) => {   
                 const { patternMismatch, tooShort } = e.target.validity            
                 if(patternMismatch || tooShort){
-                    e.target.setCustomValidity(required?.patternMessage?required.patternMessage:'Pola tidak cocok')
+                    e.target.setCustomValidity(required?.patternMessage?required.patternMessage:'Pattern mismatch')
                 }else{
                     e.target.setCustomValidity('')
                 }

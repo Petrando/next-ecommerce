@@ -12,7 +12,6 @@ import { errorHandler } from '@/utils/helpers/errorHandler'
 import { NextPage } from 'next';
 
 async function createUser(username:string, email:string, password:string) {
-    console.log('createUSer function : ', username, ', ', email, ', ', password)
     try{
         const response = await fetch('/api/auth/signup/', {
             method: 'POST',
@@ -23,8 +22,6 @@ async function createUser(username:string, email:string, password:string) {
         });
       
         const data = await response.json();
-        console.log('signup result : ')
-        console.log(data)
         if(data.error){
             throw new Error(errorHandler(data.error) || 'Something went wrong!');
         }
@@ -46,17 +43,6 @@ const RegisterPage:NextPage = () => {
     const [loading, setLoading] = useState<boolean>(false)
     const [success, setSucces] = useState<boolean>(false)
 
-    /*    const router = useRouter()
-
-    useEffect(() => {
-        getSession().then((session) => {
-          if (session?.user?.role === 'user') {
-            router.replace('/logged-user');
-                        
-          } 
-        });
-    }, [router]);
-    */
     const handleSubmit = async (e:FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
@@ -99,35 +85,35 @@ const RegisterPage:NextPage = () => {
                 >
                     <div className='mb-4'>
                         <LabelledInput
-                            label='Nama Pengguna'
+                            label='Username'
                             id='username' 
                             type='text' 
                             value={name} 
                             onChange={(e)=>{setName(e.target.value)}}
                             disabled={loading}
                             required={{
-                                reqMessage:'Nama Pengguna belum ada',
+                                reqMessage:'Usernama must not empty',
                                 pattern:'[a-zA-Z]+[a-zA-Z ]+',
-                                patternMessage:'Nama harus huruf atau spasi'
+                                patternMessage:'Username consists of letters and spaces'
                             }} 
                         />                        
                     </div>
                     <div className='mb-4'>
                         <LabelledInput
                             label='Email'
-                            id='email' 
+                            id='Email' 
                             type='email' 
                             value={email} 
                             onChange={(e)=>{setEmail(e.target.value)}} 
                             disabled={loading}
                             required={{
-                                reqMessage:'email'                                                                
+                                reqMessage:'Email must not empty'                                                                
                             }}
                         />
                     </div>
                     <div className='mb-4'>
                         <label className='block text-gray-700 text-sm font-bold mb-2' htmlFor='password'>
-                            Password (min 6 karakter)
+                            Password (at least 6 characters)
                         </label>
                         <PasswordInput                                
                             id='password1'                
@@ -135,32 +121,32 @@ const RegisterPage:NextPage = () => {
                             onChange={(e)=>{setPassword1(e.target.value)}} 
                             disabled={loading}
                             required={{
-                                reqMessage:'Password masih kosong',
+                                reqMessage:'Password must not empty',
                                 minLength: 6,
-                                patternMessage:'password minimal 6 karakter'
+                                patternMessage:'Password at least 6 characters'
                                 
                             }}   
                         />
                     </div>
                     <div className='mb-6'>
                         <label className='block text-gray-700 text-sm font-bold mb-2' htmlFor='password'>
-                            Ulangi Password
+                            Confirm Password
                         </label>
                         <PasswordInput                                
                             id='password2'                
                             value={password2} 
                             onChange={(e)=>{setPassword2(e.target.value)}}    
                             required={{
-                                reqMessage:'Belum konfirmasi password',
+                                reqMessage:'Please confirm your password',
                                 pattern:`${password1}`,
-                                patternMessage:'konfirmasi password tidak cocok'
+                                patternMessage:'Password confirmation does not match'
                             }}
                         />
                         {/*<p className='text-red-500 text-xs italic'>Please choose a password.</p>*/}
                     </div>
                     <div className='flex items-center justify-between'>
                         <ButtonWithLoader
-                            label='Mendaftar'
+                            label='Register'
                             disabled={loading}
                             loading={loading}    
                             type='submit'
@@ -169,10 +155,10 @@ const RegisterPage:NextPage = () => {
                             !loading ?
                                 <div className='flex flex-col items-center'>
                                     <p className={`${success?'text-cyan-600':'text-zinc-600'} text-xs italic`}>
-                                        {success?"Berhasil membuat akun!":'Sudah terdaftar?'}
+                                        {success?"Account created!":'Already a member?'}
                                     </p>   
                                     <Link href='/login' className='inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800'>
-                                        Masuk
+                                        Log In
                                     </Link>
                                 </div>:
                                     <>
@@ -185,7 +171,7 @@ const RegisterPage:NextPage = () => {
                     </div>
                 </form>
                 <p className='text-center text-gray-500 text-xs'>
-                    &copy;2023 Terdaftar di negeri Wakanda.
+                    &copy;2023 All Rights maybe Registered.
                 </p>
             </div>
         </div>
