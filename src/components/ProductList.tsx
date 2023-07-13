@@ -7,6 +7,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { Search } from './SearchProduct';
 import { ProductCard } from '@/components/ProductCard'
 import { IProduct } from '../../types'
+import { emptyCart } from '@/utils/helpers/cart-helper';
 
 const pageSize = 10;
 export const ProductList = () =>{
@@ -18,6 +19,12 @@ export const ProductList = () =>{
 
     const { data:session } = useSession()
     const isAdmin = session && session.user.role === 'admin'
+
+    useEffect(()=>{
+        //This line is for emptying the card
+        //remember to delete this line later
+        //emptyCart(()=>{})
+    }, [])
 
     const countProducts =async () => {
         setLoading(true)
