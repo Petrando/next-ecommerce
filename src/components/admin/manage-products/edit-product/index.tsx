@@ -33,7 +33,6 @@ export const EditProductForm:FunctionComponent = () => {
     const {categories, options, subOptions} = getCategoryStructures(categoryState)
 
     const searchParams = useSearchParams()
-    //console.log('search params : ', searchParams.get('product'))
     const productString = searchParams.get('product')
     const product = productString?JSON.parse(productString):null
     
@@ -67,7 +66,6 @@ export const EditProductForm:FunctionComponent = () => {
 
     useEffect(()=>{
         if(productPic && productPic!==''){
-            //const {productPic} = product
             getProductImgSrc(productPic)
         }
     }, [productPic])
@@ -102,20 +100,9 @@ export const EditProductForm:FunctionComponent = () => {
         itemDispatch({type:name, payload})
 	}
 	
-	const changeCategory = (evt:ChangeEvent<HTMLInputElement|HTMLSelectElement>) => {
-        const idx:number = parseInt(evt.target.value)
-        categoryDispatch({type:CategoryActionKind.SET_CATEGORY_IDX, payload:idx})
-		
-	}
-
-	const changeOption = (evt:ChangeEvent<HTMLInputElement|HTMLSelectElement>) => {
-        const idx:number = parseInt(evt.target.value)
-		categoryDispatch({type:CategoryActionKind.SET_OPTION_IDX, payload:idx})
-	}	
-
-	const changeSubOption = (evt:ChangeEvent<HTMLInputElement|HTMLSelectElement>/*catIdx:number, subCatIdx:number*/) => {                
-       const idx:number = parseInt(evt.target.value);
-       categoryDispatch({type:CategoryActionKind.SET_SUBOPTION_IDX, payload:idx})
+	const changeSelection = (evt:ChangeEvent<HTMLInputElement|HTMLSelectElement>, type:CategoryActionKind) => {
+        const payload = parseInt(evt.target.value)
+		categoryDispatch({type, payload})
 	}
 
     const submitForm = async (e:SyntheticEvent) => {
@@ -220,13 +207,13 @@ export const EditProductForm:FunctionComponent = () => {
                 >
                     <div className='flex flex-wrap -mx-3 mb-2'>
                         <CategorySelection label='Category' id='grid-categories' value={categoryIdx}
-                            onChange={(e)=>{changeCategory(e);}} options={categories}
+                            onChange={(e)=>{changeSelection(e, CategoryActionKind.SET_CATEGORY_IDX);}} options={categories}
                         />
                         <CategorySelection label='Options' id='grid-option' value={optionIdx}
-                            onChange={(e)=>{changeOption(e);}} options={options}
+                            onChange={(e)=>{changeSelection(e, CategoryActionKind.SET_OPTION_IDX);}} options={options}
                         />
                         <CategorySelection label='Sub Options' id='grid-sub-option' value={subOptionIdx}
-                            onChange={(e)=>{changeSubOption(e);}} options={subOptions}
+                            onChange={(e)=>{changeSelection(e, CategoryActionKind.SET_SUBOPTION_IDX);}} options={subOptions}
                         />
                     </div>
                     <div className='flex flex-wrap -mx-3 mb-6'>
