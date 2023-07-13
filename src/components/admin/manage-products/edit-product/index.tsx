@@ -1,18 +1,21 @@
 'use client'
-import { useState, useEffect, useReducer, FunctionComponent, SyntheticEvent, ChangeEvent, Fragment } from 'react'
+import { useState, useEffect, useReducer, FunctionComponent, SyntheticEvent, ChangeEvent } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import { generateSignature, generateSHA1 } from '@/utils/generateSignature'
 import { PageContainer } from '@/components/PageContainer'
+import { LabelledInput } from '@/components/Inputs'
 import { ButtonWithLoader } from '@/components/Buttons'
 import { CategorySelection } from '../shared-components/CategorySelection'
+import { ConditionRadio } from '../shared-components/ConditionRadio'
 import { getImgSrc } from '@/utils/api-access'
 import { IProductCategory } from '../../../../../types'
 import { categoryReducer, categoryState as initCategories, getCategoryStructures, getCategoryIds, CategoryActionKind } from '../reducers/categoryReducer';
 import { initialItem, itemPropReducer, ItemActionKind } from '../reducers/itemPropsReducer';
 import { XCircle } from '@/components/Icons'
+import { formLabelStyle, formInputStype } from '../styles'
 
 export const isAbsoluteUrl = (urlString:string) => {
     if (urlString.indexOf('http://') === 0 || urlString.indexOf('https://') === 0){
@@ -101,7 +104,8 @@ export const EditProductForm:FunctionComponent = () => {
     }, [product, mainCategories.length, categoryInitialized])
 
     const handleChange = (name:ItemActionKind) => (e:ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {		        
-        const payload = e.target.type === 'number'?parseInt(e.target.value):e.target.value
+        const payload = (e.target.id === 'price' || e.target.id === 'stock')?
+            parseInt(e.target.value):e.target.value
         itemDispatch({type:name, payload})
 	}
 	
@@ -222,124 +226,73 @@ export const EditProductForm:FunctionComponent = () => {
                     onSubmit={(e) => submitForm(e)}
                 >
                     <div className='flex flex-wrap -mx-3 mb-2'>
-                        <CategorySelection 
-                            label='Category'
-                            id='grid-categories'
-                            value={categoryIdx}
-                            onChange={(e)=>{changeCategory(e);}}
-                            options={categories}
+                        <CategorySelection label='Category' id='grid-categories' value={categoryIdx}
+                            onChange={(e)=>{changeCategory(e);}} options={categories}
                         />
-                        <CategorySelection 
-                            label='Options'
-                            id='grid-option'
-                            value={optionIdx}
-                            onChange={(e)=>{changeOption(e);}}
-                            options={options}
+                        <CategorySelection label='Options' id='grid-option' value={optionIdx}
+                            onChange={(e)=>{changeOption(e);}} options={options}
                         />
-                        <CategorySelection 
-                            label='Sub Options'
-                            id='grid-sub-option'
-                            value={subOptionIdx}
-                            onChange={(e)=>{changeSubOption(e);}}
-                            options={subOptions}
+                        <CategorySelection label='Sub Options' id='grid-sub-option' value={subOptionIdx}
+                            onChange={(e)=>{changeSubOption(e);}} options={subOptions}
                         />
                     </div>
                     <div className='flex flex-wrap -mx-3 mb-6'>
-                        <div className='w-full md:w-2/3 px-3 mb-6 md:mb-0'>
-                            <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2' htmlFor='grid-product-name'>
-                                Product Name
-                            </label>
-                            <input 
-                                className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white' 
-                                id='grid-product-name' 
-                                type='text' 
-                                placeholder='Product Name' 
-                                value={itemName}
-                                onChange={handleChange(ItemActionKind.SET_NAME)}
+                    <div className='w-full md:w-2/3 px-3 mb-6 md:mb-0'>
+                            <LabelledInput label='Product Name' id='product-name' value={itemName} 
+                                onChange={handleChange(ItemActionKind.SET_NAME)} disabled={loading}
+                                required={{
+                                    reqMessage:'Item name still empty'                                    
+                                }}
+                                labelStyle={formLabelStyle} inputStyle={formInputStype}                                                                                                                             
                             />
-                            {/*<p className='text-red-500 text-xs italic'>Please fill out this field.</p>*/}
                         </div>                        
                         <div className='w-full md:w-1/3 px-3'>
                             <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2' htmlFor='grid-last-name'>
                                 Product Condition
                             </label>
                             <div className='w-full h-11 flex justify-start items-center'>
-                                <div className='flex items-center'>
-                                    <input 
-                                        id='new-item-radio' 
-                                        type='radio'                                         
-                                        name='new-item-radio' 
-                                        className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2' 
-                                        checked={isNewItem}
-                                        onChange={()=>{
-                                            itemDispatch({type:ItemActionKind.SET_CONDITION, payload:true})
-                                        }}                                        
-                                    />
-                                    <label htmlFor='new-item-radio' className='ml-2 text-sm font-medium text-gray-700'>New</label>
-                                </div>
-                                <div className='flex items-center ml-2'>
-                                    <input 
-                                        id='used-item-radio' 
-                                        type='radio'                                         
-                                        name='used-item-radio' 
-                                        className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2' 
-                                        checked={!isNewItem}
-                                        onChange={()=>{
-                                            itemDispatch({type:ItemActionKind.SET_CONDITION, payload:false})
-                                        }}
-                                    />
-                                    <label htmlFor='used-item-radio' className='ml-2 text-sm font-medium text-gray-700'>Used</label>
-                                </div>
+                                <ConditionRadio id='new-item-radio' label='New' checked={isNewItem}
+                                    onChange={(e)=>{itemDispatch({type:ItemActionKind.SET_CONDITION, payload:true})}}
+                                />                                
+                                <ConditionRadio id='used-item-radio' label='Used' checked={!isNewItem}
+                                    onChange={(e)=>{itemDispatch({type:ItemActionKind.SET_CONDITION, payload:false})}}
+                                />
                             </div>
-                        </div>                                
+                        </div>                               
                     </div>
                     
                     <div className='flex flex-wrap -mx-3 mb-6'>
                         <div className='w-full px-3'>
-                            <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2' htmlFor='grid-description'>
-                                Product Description
-                            </label>
-                            <textarea 
-                                rows={4} 
-                                className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500' 
-                                id='grid-description' 
-                                placeholder='' 
-                                value={itemDescription}
+                            <LabelledInput inputType='textarea' rows={4} id='product-description'
+                                label='Description' labelStyle={formLabelStyle} inputStyle={formInputStype}
+                                value={itemDescription} disabled={loading}
                                 onChange={handleChange(ItemActionKind.SET_DESCRIPTION)}
+                                required={{
+                                    reqMessage:'Must write product description'
+                                }}
                             />
                             <p className='text-gray-600 text-xs italic'>Make it as long and as crazy as you&apos;d like</p>
                         </div>
                     </div>
                     <div className='flex flex-wrap -mx-3 mb-2'>
                         <div className='w-full md:w-1/2 px-3 mb-6 md:mb-0'>
-                            <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2' htmlFor='grid-price'>
-                                Price
-                            </label>
-                            <input 
-                                className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500' 
-                                id='grid-price' 
-                                type='number' 
-                                placeholder='item price'
-                                value={price}
-                                onChange={handleChange(ItemActionKind.SET_PRICE)} 
+                            <LabelledInput label='Price($)' id='price' value={price.toString()}
+                                onChange={handleChange(ItemActionKind.SET_PRICE)}
+                                labelStyle={formLabelStyle} inputStyle={formInputStype}
+                                required={{reqMessage:'Must supply price', pattern:'[0-9]',
+                                    patternMessage:'Price must be number'}}                              
                             />
                         </div>
                         <div className='w-full md:w-1/2 px-3 mb-6 md:mb-0'>
-                            <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2' htmlFor='grid-stock'>
-                                Stock
-                            </label>
-                            <input 
-                                className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500' 
-                                id='grid-stock' 
-                                type='number' 
-                                placeholder='9999' 
-                                value={0}
-                                onChange={
-                                    handleChange(ItemActionKind.SET_STOCK)
-                                }
+                            <LabelledInput label='Stock' id='stock' value={stock.toString()}
+                                onChange={handleChange(ItemActionKind.SET_STOCK)}
+                                labelStyle={formLabelStyle} inputStyle={formInputStype}
+                                required={{reqMessage:'Must supply item stock', pattern:'[0-9]',
+                                    patternMessage:'Stock must be number'                                    
+                                }}                              
                             />
                         </div>
-                    </div>                             
+                    </div>                            
                     <div className='flex flex-wrap w-full mt-3 mb-2'>
                         <div className={`w-full ${newProductPic===null?'md:w-1/2':'md:w-1/3'} md:pr-3 mb-2 md:mb-0`}>
                             <label htmlFor='dropzone-file' className='flex flex-col justify-center items-center w-full h-64 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed cursor-pointer hover:bg-gray-100'>
