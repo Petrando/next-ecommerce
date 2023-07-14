@@ -74,8 +74,9 @@ export const EditProductForm:FunctionComponent = () => {
     }, [])
 
     useEffect(()=>{
-        //assumption : itemState populated with items prop if itemName is not empty string
-        if(product !== null && itemName === ''){
+        //assumption : itemState populated with items prop if itemName and itemDescription 
+        //are not empty string
+        if(product !== null && itemName === '' && itemDescription === ''){
             itemDispatch({type:ItemActionKind.INIT_ITEM_FOR_EDIT, payload:product})
         }
     }, [product, itemName])
@@ -200,8 +201,7 @@ export const EditProductForm:FunctionComponent = () => {
                     Edit Product
                 </h3>
                 <form 
-                    className='w-full max-w-2xl'
-                    noValidate                     
+                    className='w-full max-w-2xl'                     
                     onSubmit={(e) => submitForm(e)}
                 >
                     <div className='flex flex-wrap -mx-3 mb-2'>

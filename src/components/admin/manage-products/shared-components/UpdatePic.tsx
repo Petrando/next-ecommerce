@@ -17,8 +17,7 @@ export const isAbsoluteUrl = (urlString:string) => {
     return false
 }
 
-export const UpdatePic:FunctionComponent<IUpdatePic> = ({productPic, newProductPic, itemName, setNewPic, cancelUpdate}) => {
-    const isAddForm = typeof productPic === 'string'
+export const UpdatePic:FunctionComponent<IUpdatePic> = ({productPic, newProductPic, itemName, setNewPic, cancelUpdate}) => {    
     const isTwoPic = newProductPic!==null
     return (
         <div className='flex flex-wrap w-full mt-3 mb-2'>
@@ -50,7 +49,7 @@ export const UpdatePic:FunctionComponent<IUpdatePic> = ({productPic, newProductP
             <div className={`w-full flex items-center justify-center ${!isTwoPic?'md:w-1/2':'md:w-2/3'} mb-2 md:mb-0 overflow-hidden flex flex-wrap`}>
                 <div className={`w-full ${newProductPic===null?'md:w-full':'md:w-1/2'} h-64 relative flex items-center justify-center p-2`}>
                 {
-                    (productPic && productPic !== '' && isAbsoluteUrl(productPic))?                            
+                    productPic && ((productPic !== '' && isAbsoluteUrl(productPic))?                            
                         <Image 
                             fill
                             className={`object-cover rounded-lg`}
@@ -58,7 +57,7 @@ export const UpdatePic:FunctionComponent<IUpdatePic> = ({productPic, newProductP
                             key={productPic} 
                             alt={itemName}
                         />:
-                            <p>Loading...</p>                                    
+                            <p>Loading...</p>)
                 }
                 </div>
                 {

@@ -118,8 +118,7 @@ export const AddProduct:FunctionComponent = () => {
                     Add New Product
                 </h3>
                 <form 
-                    className='w-full max-w-2xl'
-                    noValidate                     
+                    className='w-full max-w-2xl'            
                     onSubmit={(e) => submitForm(e)}
                 >
                     <div className='flex flex-wrap -mx-3 mb-2'>

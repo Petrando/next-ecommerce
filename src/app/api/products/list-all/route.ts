@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Product from '../../../../../models/product';
-import { productsPerPageAggregation } from '../list-search/route';
+import { productsPerPageAggregation } from '@/utils/helpers/mongo-query-functions';
 import dbConnect from '@/utils/dbConnect';
 
 export async function GET(req:Request) {

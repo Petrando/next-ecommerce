@@ -33,9 +33,10 @@ export const CategoryList:FunctionComponent = () => {
             },
         }*/);
         const categories = await response.json()
-
-        console.log('categories : ', categories)
-        setCategories(categories.data)
+        if(categories.data){
+            setCategories(categories.data)
+        }
+        
 	}
 
 	useEffect(() => {
@@ -135,8 +136,8 @@ export const CategoryList:FunctionComponent = () => {
                                 if(toBeAdded){
                                     const {parentIdx, myIdx, addValue} = toBeAdded;
                                     if( typeof parentIdx === 'number' && typeof myIdx === 'number'){
-                                        console.log(categories[parentIdx])
-                                        console.log('myIdx : ', myIdx)
+                                        //console.log(categories[parentIdx])
+                                        //console.log('myIdx : ', myIdx)
                                         const selectedCategory = categories[parentIdx]
                                         const {_id} = selectedCategory
                                         const optionId = selectedCategory.options?selectedCategory.options[myIdx]._id:''
@@ -452,24 +453,41 @@ export const CategoryList:FunctionComponent = () => {
         )
     }
 
-    /*
+    
     const deleteDialogProps = () => {
         if(toDelete === null){
             return {ids:{categoryId:"", optionId:"", subOptionId:""}, dialogTitle:""};
         }
+        
 
         const { _id, parentIdxs } = toDelete;
-        const categoryId = parentIdxs === -1?_id:categories[parentIdxs[0]]._id;
-        const optionId = parentIdxs === -1?"0":
-            parentIdxs.length===1?_id:
-                categories[parentIdxs[0]].options[parentIdxs[1]]._id;
+        const categoryId = Array.isArray(parentIdxs)?categories[parentIdxs[0]]._id:_id;
+        let optionId:string = "";
+        if(parentIdxs === -1){
+            optionId = "0";
+        }
+        if(Array.isArray(parentIdxs)){
+            if(parentIdxs.length === 1){
+                optionId = _id
+            }
+            else if(parentIdxs.length === 2){
+                const catIdx:number = parentIdxs[0]
+                const optIdx:number = parentIdxs[1]
+                if(Array.isArray(categories) && categories.length > catIdx){
+                    const selectedOptions = categories[catIdx].options
+                    if(Array.isArray(selectedOptions) && selectedOptions.length > optIdx){
+                        optionId = selectedOptions[optIdx]._id
+                    }                    
+                }                
+            }
+        }
         const subOptionId = !Array.isArray(parentIdxs)?"0":
             parentIdxs.length === 1?"0":_id;
             
         const categoryIdx = categories.findIndex(d => d._id === categoryId);
         const category = categories[categoryIdx];
-        const option = category.hasOwnProperty('options') && category.options.find(d => d._id === optionId);
-        const subOption = (option && option.hasOwnProperty('options')) && option.options.find(d => d._id=== subOptionId);
+        const option = Array.isArray(category.options)?category.options.find(d => d._id === optionId):null;
+        const subOption = (option && Array.isArray(option.options))?option.options.find(d => d._id=== subOptionId):null;
         
         const dialogTitle = category.category + (option?` > ${option.category}`:"") + 
             (subOption?` > ${subOption.category}`:"");
@@ -477,9 +495,8 @@ export const CategoryList:FunctionComponent = () => {
         return { ids:{categoryId, optionId, subOptionId}, dialogTitle};
     }
 
-    */
-    //const { ids:{categoryId, optionId, subOptionId}, dialogTitle} = deleteDialogProps();
-    console.log('edited : ', edited)
+    const { ids, dialogTitle} = deleteDialogProps();
+    
     const addingNewCategory = toBeAdded!==null && !toBeAdded.hasOwnProperty('myIdx');
     
     return (
@@ -515,33 +532,9 @@ export const CategoryList:FunctionComponent = () => {
             //work this LAST!
             toDelete !== null&&
                 <DeleteDialog
-                    title={/*dialogTitle*/''}
-                    deleteClick={()=>{
-                        //call API to delete category
-                        //work this LAST!
-                        /*
-                        deleteCategory(user._id, categoryId, optionId, subOptionId, token)
-                            .then(data=>{                            
-                                if(data.error){
-                                    console.log(data);
-                                }
-                                else if (typeof data === "string" && data.startsWith("Error")){
-                                    toast.error(data);
-                                }
-                                else{                                
-                                    
-                                    if(data.hasOwnProperty('totalCount')){
-                                        toast.warning(`Cannot delete ${dialogTitle}, there are ${data.totalCount} item(s) in it.`)
-                                    }else{                                    
-                                        toast.success('Delete succesful');
-                                        setToDelete(null);
-                                        loadCategories();
-                                    }
-                                }
-                            });
-                        */
-                    }}
+                    title={dialogTitle}                    
                     close={()=>{setToDelete(null);}}
+                    deleteParams={ids}
                 />
         }
         </>

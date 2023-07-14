@@ -40,6 +40,7 @@ export const itemPropReducer = (state:IItemProp, action:IAction) => {
     const { type, payload } = action
 
     if(type === ItemActionKind.SET_NAME){
+        console.log('payload : ', payload)
         return Object.assign({}, state, {itemName:payload})
     }
     if(type === ItemActionKind.SET_CONDITION){
