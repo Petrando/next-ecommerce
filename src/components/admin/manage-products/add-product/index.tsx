@@ -175,16 +175,15 @@ export const AddProduct:FunctionComponent = () => {
                             <LabelledInput label='Price($)' id='price' value={price.toString()}
                                 onChange={changeProp(ItemActionKind.SET_PRICE)}
                                 labelStyle={formLabelStyle} inputStyle={formInputStype}
-                                required={{reqMessage:'Must supply price', pattern:'[0-9]',
-                                    patternMessage:'Price must be number'}}                              
+                                required={{reqMessage:'Must supply price'/*, pattern:'[0-9]'*/}}                              
                             />
                         </div>
                         <div className='w-full md:w-1/2 px-3 mb-6 md:mb-0'>
                             <LabelledInput label='Stock' id='stock' value={stock.toString()}
                                 onChange={changeProp(ItemActionKind.SET_STOCK)}
                                 labelStyle={formLabelStyle} inputStyle={formInputStype}
-                                required={{reqMessage:'Must supply item stock', pattern:'[0-9]',
-                                    patternMessage:'Stock must be number'                                    
+                                required={{reqMessage:'Must supply item stock',/* pattern:'[0-9]',
+                                    patternMessage:'Stock must be number'*/                                    
                                 }}                              
                             />
                         </div>

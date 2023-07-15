@@ -1,20 +1,21 @@
 'use client'
 
-import { useState, useEffect, FunctionComponent, MouseEventHandler } from 'react';
+import { useState, useEffect, FunctionComponent, MouseEventHandler, FormEvent } from 'react';
 import { ButtonWithLoader } from '@/components/Buttons';
 import { FullscreenBaseModal } from '@/components/Modal';
 
 interface IDeleteDialog {
     title: string; 
-    deleteParams:{
+    ids:{
         categoryId:string,
         optionId:string,
         subOptionId:string
     };
-    close: MouseEventHandler<HTMLButtonElement>;
+    onSuccess: ()=>void;
+    close: ()=>void;
 }
 
-export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, deleteParams, close}) => {
+export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, ids, onSuccess, close}) => {
     const [productCount, setProductCount] = useState<{
         counted:boolean, count:number, countError:any}>({
             counted:false, count:0, countError:null})
@@ -24,7 +25,7 @@ export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, deletePara
         try{
             const countResp = await fetch('/api/products/count-products/by-category/',{
                 method: 'POST',
-                body: JSON.stringify(deleteParams),
+                body: JSON.stringify(ids),
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -54,14 +55,49 @@ export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, deletePara
         }
     }, [counted])
 
-    const deleteCategory = async () => {
-
+    const deleteCategory = async (e:FormEvent<HTMLFormElement>) => {
+        e.stopPropagation()
+        e.preventDefault()
+        setLoading(true)
+        const {categoryId, optionId, subOptionId} = ids
+        const mainUrl = '/api/admin/manage-categories/delete/'
+        const deleteUrl = (optionId === '0' && subOptionId === '0')?`category`:
+            (optionId !== '0' && subOptionId === '0')?`option`:`sub-option`
+        const body:{categoryId:string, optionId?:string, subOptionId?:string} = {
+            categoryId
+        }
+        if(deleteUrl !== 'category'){
+            body.optionId = optionId
+            if(deleteUrl === 'sub-option'){
+                body.subOptionId = subOptionId
+            }
+        }
+        try{
+            let response = await fetch(mainUrl + deleteUrl, {
+                method: 'POST',
+                body: JSON.stringify(body),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            const deleteResponse = await response.json()
+            console.log('deleteResponse : ', deleteResponse)
+            if(typeof onSuccess === 'function'){
+                onSuccess()
+            }
+            
+        }catch(err){
+            console.log('error deleting catgory/option/sub-option : ', err)
+        }
+        finally{
+            setLoading(false)
+        }
     }
 
     const titleLabel = () => {        
         if(loading){
             if(!counted){
-                return `Counting ${title} products...`
+                return `Counting products...`
             }else{
                 `Deleting ${title}...`
             }
@@ -69,7 +105,7 @@ export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, deletePara
         }
         if(!loading){
             if(count > 0){
-                return `Cannot delete ${title} products.`
+                return `Cannot delete products.`
             }
             if(count === 0){
                 return `Delete ${title}?`
@@ -81,7 +117,6 @@ export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, deletePara
     }
 
     console.log('count : ', count)
-    const canDelete = counted && count === 0 && !countError
     return (
         <FullscreenBaseModal>            
             <form onSubmit={deleteCategory} className=" w-full max-w-md bg-white rounded">

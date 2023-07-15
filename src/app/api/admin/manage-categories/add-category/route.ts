@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
-import Category, { iCategory } from '../../../../../../models/category'
+import Category from '../../../../../../models/category'
 import dbConnect from '@/utils/dbConnect'
-import { ICategoryData } from '@/components/admin/manage-category/AddCategory';
 
 export async function GET(req:Request) {
     return NextResponse.json({ message: '/api/admin/manage-categories/add-category/ GET' });

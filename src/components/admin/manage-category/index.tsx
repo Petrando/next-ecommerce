@@ -452,17 +452,18 @@ export const CategoryList:FunctionComponent = () => {
             </>
         )
     }
-
     
     const deleteDialogProps = () => {
         if(toDelete === null){
-            return {ids:{categoryId:"", optionId:"", subOptionId:""}, dialogTitle:""};
+            return {ids:{categoryId:"", optionId:"", subOptionId:""}, 
+                idxs:{ optionIdx:-1, subOptionIdx:-1}, 
+                    dialogTitle:""};
         }
         
 
         const { _id, parentIdxs } = toDelete;
         const categoryId = Array.isArray(parentIdxs)?categories[parentIdxs[0]]._id:_id;
-        let optionId:string = "";
+        let optionId:string = "";        
         if(parentIdxs === -1){
             optionId = "0";
         }
@@ -486,13 +487,13 @@ export const CategoryList:FunctionComponent = () => {
             
         const categoryIdx = categories.findIndex(d => d._id === categoryId);
         const category = categories[categoryIdx];
-        const option = Array.isArray(category.options)?category.options.find(d => d._id === optionId):null;
-        const subOption = (option && Array.isArray(option.options))?option.options.find(d => d._id=== subOptionId):null;
-        
+        const option = Array.isArray(category.options)?category.options.find(d => d._id === optionId):null;        
+        const subOption = (option && Array.isArray(option.options))?option.options.find(d => d._id=== subOptionId):null;        
         const dialogTitle = category.category + (option?` > ${option.category}`:"") + 
             (subOption?` > ${subOption.category}`:"");
 
-        return { ids:{categoryId, optionId, subOptionId}, dialogTitle};
+        return { ids:{categoryId, optionId, subOptionId}, 
+                dialogTitle};
     }
 
     const { ids, dialogTitle} = deleteDialogProps();
@@ -534,7 +535,8 @@ export const CategoryList:FunctionComponent = () => {
                 <DeleteDialog
                     title={dialogTitle}                    
                     close={()=>{setToDelete(null);}}
-                    deleteParams={ids}
+                    ids={ids}
+                    onSuccess={()=>{loadCategories();setToDelete(null);}}
                 />
         }
         </>
