@@ -47,7 +47,7 @@ export const CategoryList:FunctionComponent = () => {
         return (
             <PageContainer>
                 <ListContainer
-                    title={{title:"Category List", textStyle:"text-gray-700 text-lg font-semibold"}}
+                    title={{title:"Category List", textStyle:"text-gray-700 text-2xl font-semibold"}}
                     addButton={{
                         title:"Category", 
                             click:()=>{setToBeAdded({addValue:''});setSelected(null);}
@@ -289,7 +289,8 @@ export const CategoryList:FunctionComponent = () => {
                             onChange={(e) => setEdited({...edited, editedValue:e.target.value})}
                         />
                     ):
-                    <div className={`flex-grow font-${iSelected?"bold":"medium"} px-2`}>
+                    <div className={`flex-grow 
+                        font-${iSelected?"bold":"medium"} ${iSelected&&'text-base'} px-2`}>
                     { c.category }
                     </div>
                 }                
@@ -364,22 +365,7 @@ export const CategoryList:FunctionComponent = () => {
                                         setEdited(null)
                                         loadCategories()
                                     }
-                                    //call API to update category title   	
-                                    /*					    						
-                                    updateCategoryTitle(user._id, categoryId, optionIdx, subOptionIdx, token, editedValue)
-                                        .then(data => {
-                                            if(data.error){
-                                                console.log(data.error);
-                                            } else {
-                                                loadCategories();    
-                                            }
-                                            setEdited(null);
-                                        });
-                                    */
-                                }
-    												
-                                
-                                
+                                }    												                                                            
                             }} />
                             <Reload onClick={()=>{}} />
                             <Cancel onClick={()=>{setEdited(null);}} />
@@ -458,8 +444,7 @@ export const CategoryList:FunctionComponent = () => {
             return {ids:{categoryId:"", optionId:"", subOptionId:""}, 
                 idxs:{ optionIdx:-1, subOptionIdx:-1}, 
                     dialogTitle:""};
-        }
-        
+        }        
 
         const { _id, parentIdxs } = toDelete;
         const categoryId = Array.isArray(parentIdxs)?categories[parentIdxs[0]]._id:_id;
@@ -509,7 +494,6 @@ export const CategoryList:FunctionComponent = () => {
                 <AddCategory
                     dialogTitle="New Category"
                     onSubmit={async (newCategoryData)=>{
-                        //call API to create category
                         
                         const response = await fetch('/api/admin/manage-categories/add-category/',
                         {
@@ -520,8 +504,6 @@ export const CategoryList:FunctionComponent = () => {
                             },
                         });
                         const newCategory = await response.json()
-                
-                        console.log('category created : ', newCategory)
                         
                         setToBeAdded(null);
                         loadCategories()
