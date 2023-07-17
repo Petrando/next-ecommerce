@@ -18,10 +18,10 @@ export const isAbsoluteUrl = (urlString:string) => {
 }
 
 export const UpdatePic:FunctionComponent<IUpdatePic> = ({productPic, newProductPic, itemName, setNewPic, cancelUpdate}) => {    
-    const isTwoPic = newProductPic!==null
+    const isTwoPic = productPic && newProductPic
     return (
         <div className='flex flex-wrap w-full mt-3 mb-2'>
-            <div className={`w-full ${newProductPic===null?'md:w-1/2':'md:w-1/3'} md:pr-3 mb-2 md:mb-0`}>
+            <div className={`w-full ${!isTwoPic?'md:w-1/2':'md:w-1/3'} md:pr-3 mb-2 md:mb-0`}>
                 <label 
                     htmlFor='dropzone-file' 
                     className='flex flex-col justify-center items-center w-full h-64 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed cursor-pointer hover:bg-gray-100'
@@ -47,9 +47,13 @@ export const UpdatePic:FunctionComponent<IUpdatePic> = ({productPic, newProductP
                 </label>
             </div>
             <div className={`w-full flex items-center justify-center ${!isTwoPic?'md:w-1/2':'md:w-2/3'} mb-2 md:mb-0 overflow-hidden flex flex-wrap`}>
-                <div className={`w-full ${newProductPic===null?'md:w-full':'md:w-1/2'} h-64 relative flex items-center justify-center p-2`}>
+                
                 {
-                    productPic && ((productPic !== '' && isAbsoluteUrl(productPic))?                            
+                    productPic && 
+                    <div className={`w-full ${newProductPic===null?'md:w-full':'md:w-1/2'} h-64 relative flex items-center justify-center p-2`}>
+                    {
+                        (productPic !== '' && isAbsoluteUrl(productPic))?                            
+                    
                         <Image 
                             fill
                             className={`object-cover rounded-lg`}
@@ -57,9 +61,10 @@ export const UpdatePic:FunctionComponent<IUpdatePic> = ({productPic, newProductP
                             key={productPic} 
                             alt={itemName}
                         />:
-                            <p>Loading...</p>)
+                            <p>Loading...</p>
+                    }
+                    </div>
                 }
-                </div>
                 {
                     newProductPic!== null &&
                         <div className={`w-full md:w-1/2 h-64 relative flex items-center justify-center p-2`}>
@@ -69,20 +74,32 @@ export const UpdatePic:FunctionComponent<IUpdatePic> = ({productPic, newProductP
                                 src={URL.createObjectURL(newProductPic)} 
                                 alt={`new ${itemName} pic`}
                             />
-                            <div 
-                                className='flex items-center justify-center cursor-pointer absolute right-0 top-0'
-                                onClick={()=>{
-                                    //itemDispatch({type:ItemActionKind.SET_NEW_PIC, payload:null})
-                                    if(cancelUpdate){ cancelUpdate() }
-                                    
-                                }}
-                            >
-                                <XCircle />
-                            </div>
+                            <>
+                            {
+                                cancelUpdate && <CancelUpdate cancelUpdate={cancelUpdate} />
+                            }
+                            </>
                         </div>
                         
                 }                       
             </div>
+        </div>
+    )
+}
+
+type ICancelUpdate = {
+    cancelUpdate: ()=>void;
+}
+
+const CancelUpdate:FunctionComponent<ICancelUpdate> = ({cancelUpdate}) => {
+    return (
+        <div 
+            className='flex items-center justify-center cursor-pointer absolute right-0 top-0'
+            onClick={()=>{
+                cancelUpdate()                
+            }}
+        >
+            <XCircle />
         </div>
     )
 }
