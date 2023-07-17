@@ -18,10 +18,10 @@ export const CategoryList:FunctionComponent = () => {
 	const [edited, setEdited] = useState<null|{_id:any, defaultValue?: string, editedValue: string, myIdx:number, parent0?: number, parent1?: number}>(null);
     const [toDelete, setToDelete] = useState<null|{_id:any, parentIdxs:number|number[]}>(null);
 	const [toBeAdded, setToBeAdded] = useState<null | {addValue: string, myIdx?: number, parentIdx?: number}>(null);
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState('')
     
 	const loadCategories = async() => {
-        setLoading(false)
+        setLoading('loading categories')
         try{
             const response = await fetch('/api/categories/list-categories/');
             const categories = await response.json()
@@ -33,7 +33,7 @@ export const CategoryList:FunctionComponent = () => {
 
         }
 		finally{
-            setLoading(true)
+            setLoading('')
         }
         
 	}
@@ -49,7 +49,9 @@ export const CategoryList:FunctionComponent = () => {
                     title={{title:"Category List", textStyle:"text-gray-700 text-2xl font-semibold"}}
                     addButton={{
                         title:"Category", 
-                            click:()=>{setToBeAdded({addValue:''});setSelected(null);}
+                        click:()=>{setToBeAdded({addValue:''});setSelected(null);},
+                        loading:loading!=='',
+                        disabled:edited!==null || toBeAdded !== null || toDelete !== null || loading !== ''
                     }}
                     withSearch={true}
                 >
@@ -109,7 +111,10 @@ export const CategoryList:FunctionComponent = () => {
 		const iAdding = iAmAdding(myIdx, lvl, parentIdx);  
         return (                                
             <ListContainer
-                title={{title:`List of ${title}`, textStyle:`text-gray-700 text-${optionLvl === 1?"base":"sm"} font-semibold`}}
+                title={{
+                    title:`List of ${title}`, 
+                    textStyle:`text-gray-700 text-${optionLvl === 1?"base":"sm"} font-semibold`
+                }}
                 addButton={{
                     title, 
                     click:() => {													
@@ -120,7 +125,8 @@ export const CategoryList:FunctionComponent = () => {
                         }
                         setToBeAdded(newToBeAdded);
                     },
-                    disabled:iAdding
+                    disabled:iAdding || loading!=='' || toBeAdded !== null,
+                    loading:loading!==''
                 }}
                 additionals={
                     iAdding && toBeAdded &&
@@ -140,7 +146,7 @@ export const CategoryList:FunctionComponent = () => {
                                         const optionId = selectedCategory.options?selectedCategory.options[myIdx]._id:''
 
                                         if(optionId!==''){//this checking maybe uneccessary..
-                                            setLoading(true)
+                                            setLoading('submitting new sub option...')
                                             try{
                                                 const response = await fetch('/api/admin/manage-categories/add-sub-option/',
                                                 {
@@ -158,7 +164,7 @@ export const CategoryList:FunctionComponent = () => {
                                             }
                                             finally{
                                                 setToBeAdded(null);
-                                                setLoading(false)
+                                                setLoading('')
                                             }
                                             
                                         }
@@ -177,7 +183,7 @@ export const CategoryList:FunctionComponent = () => {
                             onSubmit={async(newOption)=>{	                              
                                 if(typeof toBeAdded.myIdx === 'number'){
                                     const {_id} = categories[toBeAdded.myIdx];
-                                    setLoading(true)
+                                    setLoading('submitting new option...')
                                     try{
                                         const response = await fetch('/api/admin/manage-categories/add-option/',
                                         {
@@ -197,7 +203,7 @@ export const CategoryList:FunctionComponent = () => {
                                     }
                                     finally{
                                         if(loading){
-                                            setLoading(false)
+                                            setLoading('')
                                         }
                                     }
                                     
@@ -209,22 +215,26 @@ export const CategoryList:FunctionComponent = () => {
                 }
             >
                 {
-                    typeof theOptions!=='undefined' && theOptions.length > 0 &&				
+                    Array.isArray(theOptions) && 
                     <>
                     {
-                        theOptions.map((cat,i) => 
-                            <Fragment key={i}>
-                                {aCategory(cat,i,optionLvl, optionParentIdxs)}
-                            </Fragment>)}
-                    </>                    
+                        theOptions.length > 0?				
+                        <>
+                        {
+                            theOptions.map((cat,i) => 
+                                <Fragment key={i}>
+                                    {aCategory(cat,i,optionLvl, optionParentIdxs)}
+                                </Fragment>)
+                                
+                        }
+                        </>:
+                            <p className="text-sm italic">
+                                ...no selection....
+                            </p>
+                        }
+                        </>                    
                     
-                }
-                {
-                    (typeof theOptions === 'undefined' || theOptions.length === 0) && !iAdding &&
-                    <p className="text-sm italic">
-                        ...no selection....
-                    </p>
-                }
+                }                
             </ListContainer>
         );
     }
@@ -243,13 +253,13 @@ export const CategoryList:FunctionComponent = () => {
         //const myEdited = edited!==null && iEdited?<></>:null;
         //console.log(c, lvl, parentIdxs);
 
+        const enableControls = loading==='' && toBeAdded === null;
         const chevButton = 
         <>
         {
             iSelected?
             <ChevUp
                 onClick={()=>{
-                    console.log('ChevUp clicked, ', toBeAdded)
                     if(toBeAdded!==null || edited !== null || lvl > 1){
                         //setToBeAdded(null);//TESTING ONLY!!REMEMBER TO REMOVE!!
                         return;
@@ -304,90 +314,93 @@ export const CategoryList:FunctionComponent = () => {
                     { c.category }
                     </div>
                 }                
-                <div className="flex justify-end text-sm font-normal text-gray-500 tracking-wide">
+                <div 
+                    className={`flex justify-end text-sm font-normal text-gray-500 tracking-wide 
+                        ${!enableControls && 'pointer-events-none cursor-none'}`}
+                >
                     {
                         iEdited?
-                        <>
-                            <Check onClick={async()=>{
-                                console.log('update title')
-                                if(edited){
-                                    const {myIdx, editedValue, parent0, parent1, _id} = edited; 
-                                    //parent0 refers to a Category!!
-                                    //parent1 refers to an option of a Category!!   
-                                    let categoryId = '', optionIdx:string|number = '', 
-                                        subOptionIdx:string|number = '', 
-                                            optionId:string = '', subOptionId:string = '';
+                        <>                            
+                            <Check 
+                                onClick={async()=>{                                
+                                    if(edited){
+                                        const {myIdx, editedValue, parent0, parent1, _id} = edited; 
+                                        //parent0 refers to a Category!!
+                                        //parent1 refers to an option of a Category!!   
+                                        let categoryId = '', optionIdx:string|number = '', 
+                                            subOptionIdx:string|number = '', 
+                                                optionId:string = '', subOptionId:string = '';
 
-                                    if(typeof parent0==='undefined' && typeof parent1 === 'undefined'){
-                                        categoryId = categories[myIdx]._id;
-                                        optionIdx = -1;
-                                        subOptionIdx = -1;
-                                    }
-                                    else if(typeof parent0 !== 'undefined'){
-                                        const selectedCategory = categories[parent0]
-                                        categoryId = selectedCategory._id;
-        
-                                        if(typeof parent1 === 'undefined'){
-                                            optionIdx = myIdx;
-
-                                            optionId = selectedCategory.options?
-                                                selectedCategory.options[optionIdx]._id:''
+                                        if(typeof parent0==='undefined' && typeof parent1 === 'undefined'){
+                                            categoryId = categories[myIdx]._id;
+                                            optionIdx = -1;
                                             subOptionIdx = -1;
-                                            //const subOptions = selectedCategory.options?
-                                                //selectedCategory.options[optionIdx].options:[]
-                                        }else{
-                                            optionIdx = parent1;
-                                            const selectedOption = selectedCategory.options?
-                                                selectedCategory.options[optionIdx]:null
-                                            optionId = selectedOption!==null?selectedOption._id:''
-                                            subOptionIdx = myIdx
-                                            if(selectedOption!==null){
-                                                subOptionId = selectedOption.options?
-                                                    selectedOption.options[subOptionIdx]._id:''
-                                            }
-                                            
-                                            
                                         }
-                                    }
-                                    
-                                    setLoading(true)
-                                    try {
-                                        const response = await fetch(
-                                            '/api/admin/manage-categories/update-title/',
-                                            {
-                                                method: 'POST',
-                                                body: JSON.stringify({
-                                                    categoryId, optionIdx, optionId, subOptionId, subOptionIdx,
-                                                        value:editedValue}),
-                                                headers: {
-                                                    'Content-Type': 'application/json',
-                                                },
+                                        else if(typeof parent0 !== 'undefined'){
+                                            const selectedCategory = categories[parent0]
+                                            categoryId = selectedCategory._id;
+            
+                                            if(typeof parent1 === 'undefined'){
+                                                optionIdx = myIdx;
+
+                                                optionId = selectedCategory.options?
+                                                    selectedCategory.options[optionIdx]._id:''
+                                                subOptionIdx = -1;
+                                                //const subOptions = selectedCategory.options?
+                                                    //selectedCategory.options[optionIdx].options:[]
+                                            }else{
+                                                optionIdx = parent1;
+                                                const selectedOption = selectedCategory.options?
+                                                    selectedCategory.options[optionIdx]:null
+                                                optionId = selectedOption!==null?selectedOption._id:''
+                                                subOptionIdx = myIdx
+                                                if(selectedOption!==null){
+                                                    subOptionId = selectedOption.options?
+                                                        selectedOption.options[subOptionIdx]._id:''
+                                                }
+                                                
+                                                
                                             }
-                                        );
-                                        const updateTitleResult = await response.json()
-                                        console.log(updateTitleResult) 
-                                        setEdited(null)
-                                        loadCategories()                                       
-                                    } 
-                                    catch(err){
-                                        console.log(err)
-                                    }
-                                    finally{
-                                        if(loading){
-                                            setLoading(false)
                                         }
-                                    }
-                                }    												                                                            
-                            }} />
-                            <Reload onClick={()=>{}} />
-                            <Cancel onClick={()=>{setEdited(null);}} />
+                                        
+                                        setLoading('updating....')
+                                        try {
+                                            const response = await fetch(
+                                                '/api/admin/manage-categories/update-title/',
+                                                {
+                                                    method: 'POST',
+                                                    body: JSON.stringify({
+                                                        categoryId, optionIdx, optionId, subOptionId, subOptionIdx,
+                                                            value:editedValue}),
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                    },
+                                                }
+                                            );
+                                            const updateTitleResult = await response.json()
+                                            console.log(updateTitleResult) 
+                                            setEdited(null)
+                                            loadCategories()                                       
+                                        } 
+                                        catch(err){
+                                            console.log(err)
+                                        }
+                                        finally{
+                                            if(loading){
+                                                setLoading('')
+                                            }
+                                        }
+                                    }    												                                                            
+                                }} 
+                            />                                                
+                            <Reload onClick={()=>{}} />                                                
+                            <Cancel onClick={()=>{setEdited(null);}} />                            
                         </>:
-                        <>
+                        <>                            
                             <Edit 
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    e.preventDefault();		
-                                    console.log('c._id :', c._id)				 		
+                                    e.preventDefault();						 		
                                     if(edited!==null){
                                         return;						 			
                                     }else {
@@ -428,7 +441,7 @@ export const CategoryList:FunctionComponent = () => {
                                         }
                                     }
                                 }}
-                            />
+                            />                                            
                             <Trash 
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -439,9 +452,8 @@ export const CategoryList:FunctionComponent = () => {
                                         setToDelete({_id:c._id, parentIdxs});                                        
                                     }
                                 }}
-                            />
-                        </>
-                        
+                            />                            
+                        </>                        
                     }
                     {lvl < 2 && chevButton}                   
                 </div>                
@@ -496,7 +508,7 @@ export const CategoryList:FunctionComponent = () => {
     const { ids, dialogTitle} = deleteDialogProps();
     
     const addingNewCategory = toBeAdded!==null && !toBeAdded.hasOwnProperty('myIdx');
-    
+    const addingNewOption = toBeAdded!==null && Array.isArray(toBeAdded.parentIdx) && toBeAdded.parentIdx.length === 1;
     return (
         <>
         <ToastContainer />
@@ -506,6 +518,7 @@ export const CategoryList:FunctionComponent = () => {
                 <AddCategory
                     dialogTitle="New Category"
                     onSubmit={async (newCategoryData)=>{
+                        setLoading('adding new category....')
                         try{
                             const response = await fetch('/api/admin/manage-categories/add-category/',
                             {
@@ -525,7 +538,7 @@ export const CategoryList:FunctionComponent = () => {
                         }
                         finally{
                             if(loading){
-                                setLoading(false)
+                                setLoading('')
                             }
                         }
                         
@@ -535,7 +548,6 @@ export const CategoryList:FunctionComponent = () => {
                 />
         }   
         {
-            //work this LAST!
             toDelete !== null&&
                 <DeleteDialog
                     title={dialogTitle}                    
@@ -545,5 +557,19 @@ export const CategoryList:FunctionComponent = () => {
                 />
         }
         </>
+    )
+}
+
+type IButtonContainer = {
+    enable: boolean;
+    children: string | JSX.Element | JSX.Element[];// | (() => JSX.Element);
+}
+const ButtonContainer:FunctionComponent<IButtonContainer> = ({enable, children}) => {
+    return (
+        <span className={`${!enable && 'pointer-events-none cursor-none'}`}>
+            {
+                children
+            }
+        </span>
     )
 }

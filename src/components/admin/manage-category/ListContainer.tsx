@@ -13,6 +13,7 @@ interface IListContainer {
         title: string;
         click: ()=>void;
         disabled?: boolean;
+        loading?:boolean;
     } | null); 
     withSearch?: boolean; 
     isTopLevel?: boolean; 
@@ -21,8 +22,9 @@ interface IListContainer {
 }
 
 export const ListContainer:FunctionComponent<IListContainer> = ({title, addButton, withSearch, isTopLevel, additionals, children }) => {    
+    const useButtonWithLoader = addButton && 'loading' in addButton
     return (
-        <div className={`bg-white shadow-md rounded-lg px-3 ${isTopLevel?" py-2 mb-4":"py-1 mb-3"}`}>
+        <div className={`bg-white shadow-md rounded-lg px-3 ${isTopLevel?" py-2 mb-4":"py-1 mb-3"} opacity-100`}>
             <div className="flex justify-between">
                 <div className={`block ${title.textStyle} ${isTopLevel?"py-2 px-2":"py-1 px-1"}`}>
                     {title.title}
@@ -33,6 +35,7 @@ export const ListContainer:FunctionComponent<IListContainer> = ({title, addButto
                             title={addButton.title}
                             onClick={()=>{addButton.click();}}
                             disabled={addButton.disabled?addButton.disabled:false}
+                            loading={addButton.loading}
                         />
                 }                                
             </div>

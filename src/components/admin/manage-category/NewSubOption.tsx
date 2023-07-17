@@ -7,7 +7,7 @@ import { ListDot } from '@/components/ListDot';
 interface INewSubOption {
     placeholder: string; 
     value: string; 
-    onChange: ChangeEventHandler<HTMLInputElement>;// | ((value: string)=>void);
+    onChange: ChangeEventHandler<HTMLInputElement|HTMLTextAreaElement>;// | ((value: string)=>void);
     okClick?: ()=>void;
     cancelClick: MouseEventHandler<HTMLButtonElement>;
     forNewOption:boolean; 
