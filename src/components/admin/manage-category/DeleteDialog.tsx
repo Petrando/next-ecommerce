@@ -19,7 +19,13 @@ export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, ids, onSuc
     const [productCount, setProductCount] = useState<{
         counted:boolean, count:number, countError:any}>({
             counted:false, count:0, countError:null})
+
+    const [optionCount, setOptionCount] = useState<{
+        counted:boolean, count:number, countError:any}>({
+            counted:false, count:0, countError:null})
+
     const [loading, setLoading] = useState(false)
+
     const countProduct =async () => {
         setLoading(true)
         try{
@@ -36,6 +42,9 @@ export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, ids, onSuc
                 //console.log('count : ', countResponse.productCount[0].totalCount)
                 setProductCount({...productCount, count:countResponse.productCount[0].totalCount, counted:true})
             }
+            else{
+                setProductCount({...productCount, counted:true})
+            }
         }
         catch(err){
             setProductCount({...productCount, countError:err, counted:true})
@@ -47,6 +56,8 @@ export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, ids, onSuc
         
     }
 
+    const isDeleteOption = ids.optionId !== '0' && ids.subOptionId === '0'
+
     const { counted, count, countError } = productCount
 
     useEffect(()=>{
@@ -54,6 +65,36 @@ export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, ids, onSuc
             countProduct()
         }
     }, [counted])
+
+    const countOptions = async () => {
+        setLoading(true)
+        try{
+            const countResp = await fetch('/api/categories/count-options/',{
+                method: 'POST',
+                body: JSON.stringify({categoryId:ids.categoryId}),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            const countResponse = await countResp.json()      
+            console.log('count options result : ', countResponse)
+            setOptionCount({...optionCount, count:countResponse.optionCount, counted:true})
+        }
+        catch(err){
+            setOptionCount({...optionCount, countError:err, counted:true})
+        }
+        finally{
+            //setOptionCount({...optionCount, counted:true})
+            setLoading(false)
+        }
+        
+    }
+
+    useEffect(()=>{
+        if(counted && isDeleteOption){
+            countOptions()
+        }
+    }, [counted, isDeleteOption])
 
     const deleteCategory = async (e:FormEvent<HTMLFormElement>) => {
         e.stopPropagation()
@@ -99,24 +140,64 @@ export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, ids, onSuc
             if(!counted){
                 return `Counting products...`
             }else{
-                `Deleting ${title}...`
+                if(isDeleteOption && !optionCount.counted){
+                    return 'Counting category options...'
+                }
+                return `Deleting ${title}...`
             }
             
         }
         if(!loading){
-            if(count > 0){
-                return `Cannot delete products.`
+            if(count > 0 || (isDeleteOption && optionCount.counted && optionCount.count < 2)){
+                return `Cannot delete.`
             }
             if(count === 0){
                 return `Delete ${title}?`
             }
             if(countError){
-                return `Error when counting ${title} products.`
+                return `Error when counting products.`
+            }
+            if(optionCount.countError){
+                return 'Error when counting options'
             }
         }        
     }
 
-    console.log('count : ', count)
+    const description = () => {
+        if(loading){
+            if(!counted){
+                return 'counting products...'
+            }else if(isDeleteOption && !optionCount.counted){
+                return 'counting category options'
+            }
+            else {
+                return 'deleting....'
+            }
+        }else{
+            if(count > 0){
+                return `${count} products in ${title}`
+            }
+            if(!isDeleteOption){
+                if(counted){                    
+                    return !countError?'Ready to delete.':'cannot delete because error'
+                }
+            }else{
+                if(optionCount.counted){
+                    console.log(optionCount.count, ', ', optionCount.count < 2)
+                    if(optionCount.count < 2){
+                        return 'category must have at least 1 option'
+                    }
+                    return (!optionCount.countError && !countError)?
+                        'ready to delete':'cannot delete because error'
+                }
+            }
+        }
+    }
+        
+    const disable = (countError || optionCount.countError) ||
+        (count > 0 || (isDeleteOption && optionCount.counted && optionCount.count < 2)) ||
+            loading
+    console.log('disable : ', disable)
     return (
         <FullscreenBaseModal>            
             <form onSubmit={deleteCategory} className=" w-full max-w-md bg-white rounded">
@@ -127,13 +208,13 @@ export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, ids, onSuc
                 </div>
                 <div className="py-4 px-2 flex justify-center items-center bg-red-100 rounded">
                     <p className="text-base text-rose-800">
-                        {count > 0?`${count} product(s) in ${title}`:''}
+                        {description()}
                     </p>
                 </div>
                 <div className="flex justify-end items-center py-2 mr-2">
                     <ButtonWithLoader
                         type='submit'
-                        disabled={loading || count > 0 || countError}
+                        disabled={disable}
                         loading={loading}
                         label={count > 0 || countError?'Cannot Delete':'Delete'}
                     />
