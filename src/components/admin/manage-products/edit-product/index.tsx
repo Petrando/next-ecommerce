@@ -12,7 +12,7 @@ import { CategorySelection } from '../shared-components/CategorySelection'
 import { ConditionRadio } from '../shared-components/ConditionRadio'
 import { UpdatePic } from '../shared-components/UpdatePic'
 import { getImgSrc } from '@/utils/api-access'
-import { IProductCategory } from '../../../../../types'
+import { IProductCategory, IProduct } from '../../../../../types'
 import { categoryReducer, categoryState as initCategories, getCategoryStructures, getCategoryIds, CategoryActionKind } from '../reducers/categoryReducer';
 import { initialItem, itemPropReducer, ItemActionKind } from '../reducers/itemPropsReducer';
 import { formLabelStyle, formInputStype } from '../styles'
@@ -84,7 +84,6 @@ export const EditProductForm:FunctionComponent = () => {
     useEffect(()=>{
         if(product!==null && mainCategories.length> 0){
             if(!categoryInitialized){
-                //console.log('this called!?')
                 const {category} = product
                 categoryDispatch({type:CategoryActionKind.INIT_FOR_EDIT, payload:category})
                 setCategoryInitialized(true)
@@ -95,8 +94,11 @@ export const EditProductForm:FunctionComponent = () => {
     }, [product, mainCategories.length, categoryInitialized])
 
     const changeProp = (name:ItemActionKind) => (e:ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {		        
-        const payload = (e.target.id === 'price' || e.target.id === 'stock')?
-            parseInt(e.target.value):e.target.value
+        let payload:File |  number | string | boolean | IProduct | null = e.target.value
+        if(e.target.id === 'price' || e.target.id === 'stock'){
+            const ePayload = parseInt(e.target.value)
+            payload = isNaN(ePayload)?'':ePayload
+        }            
         itemDispatch({type:name, payload})
 	}
 	
@@ -258,17 +260,14 @@ export const EditProductForm:FunctionComponent = () => {
                             <LabelledInput label='Price($)' id='price' value={price.toString()}
                                 onChange={changeProp(ItemActionKind.SET_PRICE)}
                                 labelStyle={formLabelStyle} inputStyle={formInputStype}
-                                required={{reqMessage:'Must supply price', pattern:'[0-9]',
-                                    patternMessage:'Price must be number'}}                              
+                                required={{reqMessage:'Must supply price'}}                              
                             />
                         </div>
                         <div className='w-full md:w-1/2 px-3 mb-6 md:mb-0'>
                             <LabelledInput label='Stock' id='stock' value={stock.toString()}
                                 onChange={changeProp(ItemActionKind.SET_STOCK)}
                                 labelStyle={formLabelStyle} inputStyle={formInputStype}
-                                required={{reqMessage:'Must supply item stock', pattern:'[0-9]',
-                                    patternMessage:'Stock must be number'                                    
-                                }}                              
+                                required={{reqMessage:'Must supply item stock'}}                              
                             />
                         </div>
                     </div>                            
