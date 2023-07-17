@@ -91,10 +91,10 @@ export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, ids, onSuc
     }
 
     useEffect(()=>{
-        if(counted && isDeleteOption){
+        if(counted && count === 0 && isDeleteOption){
             countOptions()
         }
-    }, [counted, isDeleteOption])
+    }, [counted, count, isDeleteOption])
 
     const deleteCategory = async (e:FormEvent<HTMLFormElement>) => {
         e.stopPropagation()
@@ -197,7 +197,7 @@ export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, ids, onSuc
     const disable = (countError || optionCount.countError) ||
         (count > 0 || (isDeleteOption && optionCount.counted && optionCount.count < 2)) ||
             loading
-            
+
     return (
         <FullscreenBaseModal>            
             <form onSubmit={deleteCategory} className=" w-full max-w-md bg-white rounded">
