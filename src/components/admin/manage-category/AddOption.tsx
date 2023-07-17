@@ -26,8 +26,15 @@ export const AddOption:FunctionComponent<IAddOption> = ({dialogTitle, onSubmit, 
     const subOptionList = () => {
         return (
             <ListContainer
-                title={{title:`List of ${category}`, textStyle:`text-gray-700 text-base font-semibold`}}
-                addButton={{title:category, click:()=>{setToBeAdd("");}, disabled:(edited!==null || toBeAdd !== '')}}
+                title={{
+                    title:`List of ${category}`, 
+                    textStyle:`text-gray-700 text-base font-semibold`
+                }}
+                addButton={{
+                    title:category, 
+                    click:()=>{setToBeAdd("");}, 
+                    disabled:(edited!==null || toBeAdd !== null)
+                }}
             >
             <>
                 {
