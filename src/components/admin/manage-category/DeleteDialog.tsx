@@ -197,7 +197,7 @@ export const DeleteDialog:FunctionComponent<IDeleteDialog> = ({title, ids, onSuc
     const disable = (countError || optionCount.countError) ||
         (count > 0 || (isDeleteOption && optionCount.counted && optionCount.count < 2)) ||
             loading
-    console.log('disable : ', disable)
+            
     return (
         <FullscreenBaseModal>            
             <form onSubmit={deleteCategory} className=" w-full max-w-md bg-white rounded">
