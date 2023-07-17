@@ -1,8 +1,6 @@
 'use client'
 import { FunctionComponent, useState, useEffect, Fragment } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
-//import { isAuthenticated } from "../../../api/api-auth";
-//import { getCategories, createCategory, addOption, addSubOption, updateCategoryTitle, deleteCategory} from "../../../api/api-admin.js";
 import { PageContainer } from '@/components/PageContainer';
 import { Edit, Trash, Check, Reload, Cancel, ChevDown, ChevUp } from '@/components/Icons';
 import { Input } from '@/components/Inputs';
@@ -20,21 +18,22 @@ export const CategoryList:FunctionComponent = () => {
 	const [edited, setEdited] = useState<null|{_id:any, defaultValue?: string, editedValue: string, myIdx:number, parent0?: number, parent1?: number}>(null);
     const [toDelete, setToDelete] = useState<null|{_id:any, parentIdxs:number|number[]}>(null);
 	const [toBeAdded, setToBeAdded] = useState<null | {addValue: string, myIdx?: number, parentIdx?: number}>(null);
-
-    /*
-	const {user, token} = isAuthenticated();	
-	*/
+    const [loading, setLoading] = useState(false)
+    
 	const loadCategories = async() => {
-		const response = await fetch('/api/categories/list-categories/'/*,
-        {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        }*/);
-        const categories = await response.json()
-        if(categories.data){
-            setCategories(categories.data)
+        setLoading(false)
+        try{
+            const response = await fetch('/api/categories/list-categories/');
+            const categories = await response.json()
+            if(categories.data){
+                setCategories(categories.data)
+            }    
+        }
+        catch(err){
+
+        }
+		finally{
+            setLoading(true)
         }
         
 	}
@@ -136,13 +135,12 @@ export const CategoryList:FunctionComponent = () => {
                                 if(toBeAdded){
                                     const {parentIdx, myIdx, addValue} = toBeAdded;
                                     if( typeof parentIdx === 'number' && typeof myIdx === 'number'){
-                                        //console.log(categories[parentIdx])
-                                        //console.log('myIdx : ', myIdx)
                                         const selectedCategory = categories[parentIdx]
                                         const {_id} = selectedCategory
                                         const optionId = selectedCategory.options?selectedCategory.options[myIdx]._id:''
 
-                                        if(optionId!==''){//this checking maybe uneccessary
+                                        if(optionId!==''){//this checking maybe uneccessary..
+                                            setLoading(true)
                                             try{
                                                 const response = await fetch('/api/admin/manage-categories/add-sub-option/',
                                                 {
@@ -153,7 +151,6 @@ export const CategoryList:FunctionComponent = () => {
                                                     },
                                                 });
                                                 const addSubOptionResult = await response.json()
-                                                console.log('add sub option result : ', addSubOptionResult)
                                                 loadCategories()
                                             }
                                             catch(err){
@@ -161,6 +158,7 @@ export const CategoryList:FunctionComponent = () => {
                                             }
                                             finally{
                                                 setToBeAdded(null);
+                                                setLoading(false)
                                             }
                                             
                                         }
@@ -179,18 +177,30 @@ export const CategoryList:FunctionComponent = () => {
                             onSubmit={async(newOption)=>{	                              
                                 if(typeof toBeAdded.myIdx === 'number'){
                                     const {_id} = categories[toBeAdded.myIdx];
-                                    const response = await fetch('/api/admin/manage-categories/add-option/',
-                                    {
-                                        method: 'POST',
-                                        body: JSON.stringify({_id, newOption}),
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                        },
-                                    });
-                                    const addOptionResult = await response.json()
+                                    setLoading(true)
+                                    try{
+                                        const response = await fetch('/api/admin/manage-categories/add-option/',
+                                        {
+                                            method: 'POST',
+                                            body: JSON.stringify({_id, newOption}),
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                            },
+                                        });
+                                        const addOptionResult = await response.json()
 
-                                    await loadCategories()
-                                    setToBeAdded(null)
+                                        await loadCategories()
+                                        setToBeAdded(null)
+                                        
+                                    }catch(err){
+
+                                    }
+                                    finally{
+                                        if(loading){
+                                            setLoading(false)
+                                        }
+                                    }
+                                    
                                 }
                             }}
                             onCancel={()=>{setToBeAdded(null);}}
@@ -340,6 +350,7 @@ export const CategoryList:FunctionComponent = () => {
                                         }
                                     }
                                     
+                                    setLoading(true)
                                     try {
                                         const response = await fetch(
                                             '/api/admin/manage-categories/update-title/',
@@ -354,16 +365,17 @@ export const CategoryList:FunctionComponent = () => {
                                             }
                                         );
                                         const updateTitleResult = await response.json()
-                                        console.log(updateTitleResult)
-
-                                        
+                                        console.log(updateTitleResult) 
+                                        setEdited(null)
+                                        loadCategories()                                       
                                     } 
                                     catch(err){
                                         console.log(err)
                                     }
                                     finally{
-                                        setEdited(null)
-                                        loadCategories()
+                                        if(loading){
+                                            setLoading(false)
+                                        }
                                     }
                                 }    												                                                            
                             }} />
@@ -494,19 +506,30 @@ export const CategoryList:FunctionComponent = () => {
                 <AddCategory
                     dialogTitle="New Category"
                     onSubmit={async (newCategoryData)=>{
+                        try{
+                            const response = await fetch('/api/admin/manage-categories/add-category/',
+                            {
+                                method: 'POST',
+                                body: JSON.stringify({...newCategoryData}),
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                            });
+                            const newCategory = await response.json()
+                            
+                            setToBeAdded(null);
+                            loadCategories()
+                        }
+                        catch(err){
+
+                        }
+                        finally{
+                            if(loading){
+                                setLoading(false)
+                            }
+                        }
                         
-                        const response = await fetch('/api/admin/manage-categories/add-category/',
-                        {
-                            method: 'POST',
-                            body: JSON.stringify({...newCategoryData}),
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                        });
-                        const newCategory = await response.json()
                         
-                        setToBeAdded(null);
-                        loadCategories()
                     }}
                     onCancel={()=>{setToBeAdded(null);}}
                 />
