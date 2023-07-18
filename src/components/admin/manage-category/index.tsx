@@ -509,7 +509,7 @@ export const CategoryList:FunctionComponent = () => {
     const { ids, dialogTitle} = deleteDialogProps();
     
     const addingNewCategory = toBeAdded!==null && !toBeAdded.hasOwnProperty('myIdx');
-    const addingNewOption = toBeAdded!==null && Array.isArray(toBeAdded.parentIdx) && toBeAdded.parentIdx.length === 1;
+    
     return (
         <>
         <ToastContainer />
@@ -546,6 +546,7 @@ export const CategoryList:FunctionComponent = () => {
                         
                     }}
                     onCancel={()=>{setToBeAdded(null);}}
+                    loading={loading!==''}
                 />
         }   
         {

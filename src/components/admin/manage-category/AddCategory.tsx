@@ -11,9 +11,10 @@ interface IAddCategory {
     dialogTitle: string; 
     onSubmit: (param:any)=>void;
     onCancel: MouseEventHandler<HTMLButtonElement>;
+    loading: boolean;
 }
 
-export const AddCategory:FunctionComponent<IAddCategory> = ({dialogTitle, onSubmit, onCancel}) => {
+export const AddCategory:FunctionComponent<IAddCategory> = ({dialogTitle, onSubmit, onCancel, loading}) => {
     const [categoryData, setCategoryData] = useState<ICategoryData>({category:'', options:[]});
 	const [selectedOption, setSelectedOption] = useState(null);
 	const [selected, setSelected] = useState<Number>(-1);
@@ -33,6 +34,7 @@ export const AddCategory:FunctionComponent<IAddCategory> = ({dialogTitle, onSubm
         if added does not have 'parentIdx' property, a new option for this new category is being added
     */
 	const [added, setAdded] = useState<null | {value:string, parentIdx?:number}>(null);
+    //const [loading, setLoading] = useState(false)
 
     useEffect(()=>{
         setEdited({value:''});
@@ -123,7 +125,9 @@ export const AddCategory:FunctionComponent<IAddCategory> = ({dialogTitle, onSubm
                                     title={{title:`List of ${opt.category}`, textStyle:`text-gray-700 text-base font-semibold`}}
                                     addButton={{
                                         title:opt.category,
-                                            click:()=>{setAdded({value:"", parentIdx:i});}
+                                        click:()=>{setAdded({value:"", parentIdx:i});},
+                                        loading:loading,
+                                        disabled:loading
                                     }}
                                 >
                                     <>
@@ -167,12 +171,19 @@ export const AddCategory:FunctionComponent<IAddCategory> = ({dialogTitle, onSubm
     const categoryEdited = edited && !edited.hasOwnProperty('optionIdx') && !edited.hasOwnProperty('subOptionIdx');
     const isAddingOption = added && !added.hasOwnProperty('parentIdx');    
 
+    const disableControls = loading || categoryData.category === '' || 
+        (Array.isArray(categoryData.options) && categoryData.options.length < 1) ||
+            edited !== null || added !== null
     return (
         <FullscreenModal
             title={`${dialogTitle} ${category !==""?(" : " && category):""}`}
             footerEl={null}
             close={onCancel}
             okClick={()=>{onSubmit(categoryData);}}
+            submitBtnState={{
+                loading:loading,
+                disabled:disableControls
+            }}
         >
             <NewCategory 
                 placeholder=""
@@ -180,7 +191,7 @@ export const AddCategory:FunctionComponent<IAddCategory> = ({dialogTitle, onSubm
                 onChange={(e)=>{
                     setEdited({value:e.target.value})
                 }}                                
-                edited={edited!==null?edited:{value:'', optionIdx:-1, subOptionIdx: -1}}
+                edited={edited/*!==null?edited:{value:'', optionIdx:-1, subOptionIdx: -1}*/}
                 startEdit={()=>{setEdited({value:category});}}
                 editOk={()=>{                                            
                     setCategoryData({category:edited?edited.value:'', options});
@@ -194,7 +205,9 @@ export const AddCategory:FunctionComponent<IAddCategory> = ({dialogTitle, onSubm
                     addButton={category === ""?null:
                         {
                             title:category,
-                                click:()=>{setAdded({value:""});}
+                            click:()=>{setAdded({value:""});},
+                            loading:loading,
+                            disabled:loading
                         }
                     }
                 >
@@ -221,7 +234,7 @@ export const AddCategory:FunctionComponent<IAddCategory> = ({dialogTitle, onSubm
                     {
                         Array.isArray(options) && options.length > 0?optionList():
                             <p className="text-sm italic">
-                                still empty, please add new option(s)
+                                still empty - must have at least one option. Please add new option(s)
                             </p>
                     }
                 </ListContainer>

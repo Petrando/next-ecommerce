@@ -1,16 +1,27 @@
 'use client'
-import { FunctionComponent, ReactNode, MouseEvent, MouseEventHandler } from "react";
+import { FunctionComponent, ReactNode, MouseEvent, MouseEventHandler, FormEvent } from "react";
+import { ButtonWithLoader } from "./Buttons";
 
 interface IFullscreenModal {
     title: string; 
-    footerEl: ReactNode; 
+    footerEl?: ReactNode; 
     okClick: ()=> void; 
     close: MouseEventHandler<HTMLDivElement | HTMLButtonElement>; 
+    submitBtnState?:{
+        loading:boolean;
+        disabled:boolean;
+    };
     children: ReactNode;
 }
 
-export const FullscreenModal:FunctionComponent<IFullscreenModal> = ({title, footerEl, okClick, close, children}) => {
+export const FullscreenModal:FunctionComponent<IFullscreenModal> = ({title, footerEl, okClick, close, 
+    submitBtnState, children}) => {
     
+    const submitForm = (e:FormEvent<HTMLFormElement>) => {
+        e.stopPropagation()
+        e.preventDefault()       
+        okClick()        
+    }
     return (
         <div className="modal fixed w-full h-full top-0 left-0 bg-white flex  items-start justify-center">
             {/*<div className="modal-overlay absolute w-full h-full bg-white opacity-95"></div>*/}
@@ -30,29 +41,41 @@ export const FullscreenModal:FunctionComponent<IFullscreenModal> = ({title, foot
                 </div>
 
                 {/*<!-- Add margin if you want to see grey behind the modal-->*/}
-                <div className="modal-content container mx-auto h-auto text-left p-4">
+                <form 
+                    onSubmit={submitForm}
+                    className="modal-content container mx-auto h-auto text-left p-4"
+                >
                 
-                {/*<!--Title-->*/}
-                <div className="flex justify-between items-center pb-2">
-                    <p className="text-2xl font-bold">
-                        {title?title:"Full Screen Modal!"}
-                    </p>
-                </div>
+                    {/*<!--Title-->*/}
+                    <div className="flex justify-between items-center pb-2">
+                        <p className="text-2xl font-bold">
+                            {title?title:"Fullscreen Modal!"}
+                        </p>
+                    </div>
 
-                {/*<!--Body-->*/}
-                {/*<p>Modal content can go here</p>*/}
-                { children }                
-                {/*<!--Footer-->*/}
-                <div className="flex justify-end pt-2">
+                    {/*<!--Body-->*/}
+                    {/*<p>Modal content can go here</p>*/}
+                    { children }                
+                    {/*<!--Footer-->*/}
+                    <div className="flex justify-end pt-2">
                     {
                         footerEl?footerEl:
                             <>
-                                <button 
-                                    className="px-4 bg-transparent p-3 rounded-lg text-indigo-500 hover:bg-gray-100 hover:text-indigo-400 mr-2"
-                                    onClick={okClick}
-                                >
-                                    Ok
-                                </button>
+                                {
+                                    typeof submitBtnState?.loading !== 'undefined'?
+                                        <ButtonWithLoader
+                                            label="Submit Category"
+                                            loading={submitBtnState.loading}
+                                            disabled={submitBtnState.disabled}
+                                            type="submit"
+                                        />:
+                                            <button 
+                                                className="px-4 bg-transparent p-3 rounded-lg text-indigo-500 hover:bg-gray-100 hover:text-indigo-400 mr-2"
+                                                onClick={okClick}
+                                            >
+                                                Ok
+                                            </button>
+                                }                                
                                 <button 
                                     className="modal-close px-4 bg-indigo-500 p-3 rounded-lg text-white hover:bg-indigo-400"
                                     onClick={(e)=>{
@@ -63,11 +86,9 @@ export const FullscreenModal:FunctionComponent<IFullscreenModal> = ({title, foot
                                         Close
                                 </button>
                             </>
-                    }
-                    
-                </div>
-
-                </div>
+                    }                    
+                    </div>
+                </form>
             </div>
         </div>
     );
