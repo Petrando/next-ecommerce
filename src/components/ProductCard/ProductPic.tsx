@@ -1,6 +1,7 @@
 import { FunctionComponent, useState, useEffect } from 'react';
 import { getImgSrc } from '@/utils/api-access';
 import Image from 'next/image';
+import { TailSpin } from '../Loaders';
 
 interface IProductPic {
     productPic: string;
@@ -21,7 +22,7 @@ export const ProductPic:FunctionComponent<IProductPic> = ({productPic}) => {
     return (                                    
         <div className='w-full h-64 relative flex items-center justify-center m-2'>
             {
-                !loaded && <p className='font-semibold italic'>Loading</p>
+                !loaded && <TailSpin />
             }
             {
                 src!=='' &&                
