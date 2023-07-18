@@ -13,7 +13,7 @@ interface INewOption {
     placeholder: string; 
     value: string; 
     onChange: ChangeEventHandler<HTMLInputElement>; 
-    edited: iEdited; 
+    edited: iEdited | null; 
     startEdit: ()=>void;
     editOk: ()=>void;
 }
@@ -24,8 +24,9 @@ export const NewOption:FunctionComponent<INewOption> = ({placeholder, value, onC
         if called from AddOption, the 'edited' prop will have 'lvl' property
         if called from AddCategory, the 'edited' prop will only have 'value', no 'lvl' property
     */
+   //Note to self : the above note maybe wrong...:D
     const isEdit = (edited && (edited.lvl === 0 /*called by AddOption*/ 
-        || edited.hasOwnProperty('value')/*called by AddCategory*/))?true:false;
+        || 'value' in edited/*called by AddCategory*/))?true:false;
 
     const hoverStyle = value === ""?"":"hover:bg-emerald-700";
     const focusStyle = value === ""?"":"focus:ring-4 focus:outline-none focus:ring-[#3b5998]/50";
@@ -34,9 +35,9 @@ export const NewOption:FunctionComponent<INewOption> = ({placeholder, value, onC
         <div className={"flex justify-start rounded-md px-2 py-2 my-2"}>
             <ListDot />
             {
-                isEdit?
+                edited?
                 <Input
-                    height="h-6"
+                    height="h-8"
                     placeholder={placeholder}
                     value={value}                
                     onChange={onChange}
@@ -87,7 +88,7 @@ export const NewOptionItem:FunctionComponent<INewOptionItem> = ({placeholder, va
             {
                 edited?
                     <Input
-                        height="h-6"
+                        height="h-8"
                         placeholder={placeholder}
                         value={value}                
                         onChange={onChange}

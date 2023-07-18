@@ -32,7 +32,7 @@ export const NewSubOption:FunctionComponent<INewSubOption> = ({
         
         return (
             <Input
-                height="h-6"
+                height="h-8"
                 placeholder={placeholder}
                 value={value}
                 onChange={(e)=>{

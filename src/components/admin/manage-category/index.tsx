@@ -179,7 +179,7 @@ export const CategoryList:FunctionComponent = () => {
                         />
                         :
                         <AddOption
-                            dialogTitle={`New Option for ${title}`}
+                            parentCategory={title}
                             onSubmit={async(newOption)=>{	                              
                                 if(typeof toBeAdded.myIdx === 'number'){
                                     const {_id} = categories[toBeAdded.myIdx];
@@ -210,6 +210,7 @@ export const CategoryList:FunctionComponent = () => {
                                 }
                             }}
                             onCancel={()=>{setToBeAdded(null);}}
+                            loading={loading!==''}
                         />
                     )
                 }
@@ -296,8 +297,8 @@ export const CategoryList:FunctionComponent = () => {
             <>
             <div                 
                 className={
-                    "flex justify-start cursor-pointer text-gray-700 hover:text-blue-400 hover:bg-blue-100 " +
-                        "rounded-md px-2 py-2 my-2"}
+                    `flex justify-start cursor-pointer text-gray-700 hover:text-blue-400 hover:bg-blue-100 " +
+                        "rounded-md px-2 py-2 my-2 ${!enableControls && 'opacity-70'}`}
             >
                 <ListDot />
                 {

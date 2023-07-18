@@ -1,21 +1,22 @@
 'use client'
 import { useState, useEffect, FunctionComponent, MouseEventHandler } from 'react';
-import { FullscreenModal } from '@/components/Modal';
 import { ListContainer } from './ListContainer';
 import { NewOption } from './NewOption';
 import { NewSubOption } from './NewSubOption';
+import { ButtonWithLoader } from '@/components/Buttons';
 import { IOption } from '../../../../types';
 
 interface IAddOption {
-    dialogTitle: string; 
+    parentCategory: string; 
     onSubmit: (data:IOption)=>void; 
-    onCancel: MouseEventHandler<HTMLButtonElement | HTMLDivElement>
+    onCancel: MouseEventHandler<HTMLButtonElement | HTMLDivElement>;
+    loading: boolean;
 }
 
-export const AddOption:FunctionComponent<IAddOption> = ({dialogTitle, onSubmit, onCancel}) => {
+export const AddOption:FunctionComponent<IAddOption> = ({parentCategory, onSubmit, onCancel, loading}) => {
     const [subCategoryData, setSubCategoryData] = useState<IOption>({category:'', options:[]});
     const [edited, setEdited] = useState<null|{lvl:number, myIdx?:number, oldLabel?:string}>(null);
-    const [toBeAdd, setToBeAdd] = useState<string|null>("");
+    const [toBeAdd, setToBeAdd] = useState<string|null>(null);
 
     const { category, options } = subCategoryData;
 
@@ -33,7 +34,7 @@ export const AddOption:FunctionComponent<IAddOption> = ({dialogTitle, onSubmit, 
                 addButton={{
                     title:category, 
                     click:()=>{setToBeAdd("");}, 
-                    disabled:(edited!==null || toBeAdd !== null)
+                    disabled:(edited!==null || toBeAdd !== null || loading)
                 }}
             >
             <>
@@ -110,17 +111,22 @@ export const AddOption:FunctionComponent<IAddOption> = ({dialogTitle, onSubmit, 
         );
     }
 
-    return (
-        <FullscreenModal
-            title={dialogTitle}
-            footerEl={null}
-            close={onCancel}
-            okClick={()=>{onSubmit(subCategoryData);}}
-        >
-            <ListContainer
-                title={{title:category, textStyle:`text-gray-700 text-base font-semibold`}}                
+    return (   
+            <form 
+                className={`bg-white shadow-md rounded-lg px-3 py-1 mb-3`}
+                onSubmit={(e)=>{
+                    e.stopPropagation()
+                    e.preventDefault()
+                    onSubmit(subCategoryData)
+                }}
+                noValidate
             >
-                <>
+                <div className="flex justify-between">
+                    <div className='block text-gray-700 text-base font-semibold'>
+                        {parentCategory + " > " + (category===''?'New Option':category)}
+                    </div>
+                </div>
+                <div className={`py-2 text-sm`}>
                     <NewOption
                         placeholder=""
                         value={category}
@@ -129,7 +135,7 @@ export const AddOption:FunctionComponent<IAddOption> = ({dialogTitle, onSubmit, 
                         }}
                         edited={edited!==null?
                             {value:edited.oldLabel?edited.oldLabel:'', lvl:edited.lvl}:
-                                {value:'', lvl:-1}}
+                                /*{value:'', lvl:-1}*/null}
                         startEdit={()=>{setEdited({lvl:0});}}
                         editOk={()=>{                        
                             setEdited(null);
@@ -138,9 +144,24 @@ export const AddOption:FunctionComponent<IAddOption> = ({dialogTitle, onSubmit, 
                     {
                         category!=="" && subOptionList()
 
-                    }            
-                </>
-            </ListContainer>
-        </FullscreenModal>
+                    }
+                </div> 
+                <div className="block bg-gray-200 text-sm flex items-center justify-end py-2 px-3 -mx-3 -mb-2 rounded-b-lg">
+                    <ButtonWithLoader
+                        label='submit'
+                        disabled={loading || category==='' || toBeAdd !== null || edited !== null}
+                        loading={loading}
+                        type='submit'
+                    /> 
+                    <button 
+                        className={`hover:text-gray-600 text-gray-500 font-bold py-2 px-4 ${loading && 'opacity-70'}`}
+                        onClick={(e)=>{if(typeof onCancel === 'function'){onCancel(e)}}}
+                        disabled={loading}
+                    >
+                        Cancel
+                    </button>                    
+                </div>                               
+            </form>
+        
     );
 }

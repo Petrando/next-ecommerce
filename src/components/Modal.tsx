@@ -12,12 +12,12 @@ interface IFullscreenModal {
 export const FullscreenModal:FunctionComponent<IFullscreenModal> = ({title, footerEl, okClick, close, children}) => {
     
     return (
-        <div className="modal fixed w-screen h-screen top-0 left-0 bg-white flex items-start justify-center z-2147483647">
+        <div className="modal fixed w-full h-full top-0 left-0 bg-white flex  items-start justify-center">
             {/*<div className="modal-overlay absolute w-full h-full bg-white opacity-95"></div>*/}
 
-            <div className="modal-container fixed w-full h-fit overflow-y-auto ">
+            <div className="modal-container fixed w-full h-fit z-50 overflow-y-auto ">
                 
-                <div className="modal-close absolute top-0 right-0 cursor-pointer flex flex-col items-center mt-4 mr-4 text-black text-sm"
+                <div className="modal-close absolute top-0 right-0 cursor-pointer flex flex-col items-center mt-4 mr-4 text-black text-sm z-50"
                     onClick={(e)=>{
                         e.stopPropagation();
                         close(e);
@@ -79,7 +79,7 @@ interface IModalProps {
 export const FullscreenBaseModal:FunctionComponent<IModalProps> = ({ children}) => {
     
     return (
-        <div className="modal fixed w-screen h-screen top-0 left-0 bg-zinc-900 flex items-center justify-center z-2147483647">        
+        <div className="modal fixed w-full h-full top-0 left-0 bg-zinc-900 bg-opacity-80 flex items-center justify-center">        
             { children } 
         </div>        
     );

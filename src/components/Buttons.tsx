@@ -58,14 +58,19 @@ export const AddButton:FunctionComponent<IAddButton> = ({title, margin, onClick,
             type="button" 
             className={
                 `${bg} ${hoverStyle} text-white font-bold ${focusStyle} px-2 py-2 text-center inline-flex ` +
-                    `items-center ${margin && margin} rounded overflow-hidden`
+                    `items-center ${margin && margin} rounded overflow-hidden relative`
             }
             onClick={(e)=>{onClick(e);}}    
             disabled={buttonDisable}
         >                        
             <PlusCircle />
             {" "}{title}                
-            
+            {
+                loading &&
+                    <div className='w-full h-full bg-blue-500 absolute left-0 top-0 flex items-center justify-center'>
+                        <Spinner />
+                    </div>
+            } 
         </button>
     );
 }
