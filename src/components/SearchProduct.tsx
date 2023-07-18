@@ -112,49 +112,31 @@ export const Search: FunctionComponent<ISearch> = ({ toggleSearchResultDisplayed
 
 			const skip = pageSize * currentPage;
 			const limit = pageSize;
-            /*
-			searchList({search, categoryId, optionId, subOptionId, skip, limit})
-				.then(res => {
-					if(res){
-						if(res.error){
-							console.log(res.error)
-						} else {
-							//console.log(res);																													
-							setData({...data, results:currentPage===0?res:results.concat(res), searched:true});							
-							toggleSearchResultDisplayed(true);
-							setCurrentPage(currentPage + 1);															
-							res.length === 0 && setMaxPageReached(true);
-						}
-					}					
-				});			
-            */
-                setLoading(true)
-                try{
-                    const response = await fetch('/api/products/list-search/', {
-                        method: 'POST',
-                        body: JSON.stringify({search, categoryId, optionId, subOptionId, skip, limit}),
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    });
-        
-                    const newProducts = await response.json()
-        
-                    console.log('products : ', newProducts)
-                    const products = newProducts.products
-                    setData({...data, results:currentPage===0?products:results.concat(products), searched:true});							
-					toggleSearchResultDisplayed(true);
-					setCurrentPage(currentPage + 1);															
-					products.length === 0 && setMaxPageReached(true);
-                    //setProducts(products.concat(newProducts.products))
-                    //setOffset(offset + 1)
-                }
-                catch(err){
-                    console.log('error getting products : ', err)
-                }
-                finally{
-                    setLoading(false)
-                }
+            
+			setLoading(true)
+			try{
+				const response = await fetch('/api/products/list-search/', {
+					method: 'POST',
+					body: JSON.stringify({search, categoryId, optionId, subOptionId, skip, limit}),
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+	
+				const newProducts = await response.json()
+
+				const products = newProducts.products
+				setData({...data, results:currentPage===0?products:results.concat(products), searched:true});							
+				toggleSearchResultDisplayed(true);
+				setCurrentPage(currentPage + 1);															
+				products.length === 0 && setMaxPageReached(true);
+			}
+			catch(err){
+				console.log('error getting products : ', err)
+			}
+			finally{
+				setLoading(false)
+			}
 		}				
 	}
 
@@ -226,11 +208,7 @@ export const Search: FunctionComponent<ISearch> = ({ toggleSearchResultDisplayed
 				noValidate 
 				onSubmit={(e) =>{}}
 			> 				
-				{/*
 				
-					{selectElement('Category', categories, categoryOption, categoryIdx,
-									(evt)=>changeCategory(evt))}}
-				*/}
 				<div className={`basis-full ${categoryWidth} px-3 mb-6 md:mb-0`}>
 					<SelectInput
 						selection={categories}
@@ -242,9 +220,7 @@ export const Search: FunctionComponent<ISearch> = ({ toggleSearchResultDisplayed
 				
 				{
 					categoryIdx > 0 &&				
-					<div className={`basis-full ${optionWidth} px-3 mb-6 md:mb-0`}>
-						{/*selectElement('Option', options, renderOption, optionIdx,
-										(evt)=>changeOption(evt))*/}
+					<div className={`basis-full ${optionWidth} px-3 mb-6 md:mb-0`}>						
 						<SelectInput
 							selection={options}
 							selectionRender={renderOption}
@@ -255,9 +231,7 @@ export const Search: FunctionComponent<ISearch> = ({ toggleSearchResultDisplayed
 				}
 				{
 					categoryIdx > 0 && optionIdx > 0 &&
-					<div className={`basis-full md:basis-1/5 px-3 mb-6 md:mb-0`}>
-						{/*selectElement('Sub Option', subOptions, renderSubOption, subOptionIdx,
-										(evt)=>changeSubOption(evt))*/}
+					<div className={`basis-full md:basis-1/5 px-3 mb-6 md:mb-0`}>						
 						<SelectInput
 							selection={subOptions}
 							selectionRender={renderSubOption}
@@ -355,15 +329,16 @@ export const Search: FunctionComponent<ISearch> = ({ toggleSearchResultDisplayed
 		)
 	}
 
-    console.log('maxPageReached : ', maxPageReached)
     return (
         <>
         { searchUI() }
 		{ searched && searchResultTitle() }
-        { searched && results.length > 0 && searchedProducts() }
-        { searched && results.length === 0 && 
-            <h4 className='text-center'>~...No Result...~</h4>
-        } 
+        { searched && 
+			<>{
+				results.length > 0 ? 
+					searchedProducts():<h4 className='text-center'>~...No Result...~</h4> 
+			}</>
+		}        
         </>
     );
 }

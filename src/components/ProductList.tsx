@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Search } from './SearchProduct';
 import { ProductCard } from '@/components/ProductCard'
+import { SingleRowLoader } from './Loaders';
 import { IProduct } from '../../types'
 import { emptyCart } from '@/utils/helpers/cart-helper';
 
@@ -113,7 +114,7 @@ export const ProductList = () =>{
                 <InfiniteScroll
                     loadMore={getProducts}
                     hasMore={offset <= maxPage}
-                    loader={<div className="loader" key={0}>Loading ...</div>}
+                    loader={<SingleRowLoader />}
                 >
                 <div className="p-5 font-light border border-b-0 border-gray-200 flex items-center justify-around flex-wrap pb-4">                    
                 {

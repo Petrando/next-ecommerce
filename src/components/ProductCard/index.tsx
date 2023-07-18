@@ -16,10 +16,10 @@ import { itemInCart, addItem, updateItem, removeItem } from '@/utils/helpers/car
 import { IProduct, ICategoryData } from '../../../types';
 import { IDeleteProductDialog } from '../admin/manage-products/delete-product';
 
-interface IEditButton {
+interface ILinkButton {
     product:IProduct;
 }
-const EditButton:FunctionComponent<IEditButton> = ({ product }) => {
+const EditButton:FunctionComponent<ILinkButton> = ({ product }) => {
     let { setToDelete } =  useContext(CartContext) || {};
     return (
         <Link 
@@ -40,6 +40,20 @@ const EditButton:FunctionComponent<IEditButton> = ({ product }) => {
     );
 }
 
+const DetailButton:FunctionComponent<ILinkButton> = ({product}) => {
+    return (
+        <Link 
+            href={{
+                pathname:"/product-detail",
+                query: {product:JSON.stringify(product)}
+            }} 
+            className="flex items-center text-white bg-sky-700 hover:bg-sky-800 focus:ring-4 focus:outline-none focus:ring-sky-300 font-medium rounded-lg text-xs px-1 py-1 text-center"
+        >                   
+            <Info dimensions="w-5 h-5" />
+            Details            
+        </Link>
+    )
+}
 interface IProductCard {
     product: IProduct;
     cardIn: string;
@@ -210,21 +224,13 @@ export const ProductCard:FunctionComponent<IProductCard> = ({ product, cardIn })
                     }
                     {
                         ( !inProductView || (inProductView && cardIn==="ProductRelated"))&&
-                        <Link href={`/product/${product._id}`}>              
-                            <button  
-                                className="flex items-center text-white bg-sky-700 hover:bg-sky-800 focus:ring-4 focus:outline-none focus:ring-sky-300 font-medium rounded-lg text-xs px-1 py-1 text-center"
-                            >
-                                <Info dimensions="w-5 h-5" />
-                                Details
-                            </button>
-                        </Link>
+                            <DetailButton product={product} />
                     }                    
                 </div>
             </div>
         </div>
     )
 }
-
 
 export const ProductToDeleteCard:FunctionComponent<IDeleteProductDialog> = ({ product, closeDialog}) => {
     const [ deleteState, setDeleteState ] = useState(

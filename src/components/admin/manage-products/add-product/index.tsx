@@ -101,7 +101,6 @@ export const AddProduct:FunctionComponent = () => {
                         },
                     });
                 const addItemData = await addItemResponse.json()
-                console.log(addItemData)
                 toast('New item added!', { hideProgressBar: false, autoClose: 2000, type: 'success' })
                 itemDispatch({type:ItemActionKind.RESET_ITEM})
                 

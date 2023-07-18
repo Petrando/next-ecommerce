@@ -1,4 +1,3 @@
-import category from '../../../../../models/category';
 import { ICategoryData, IProductCategory } from '../../../../../types';
 
 export enum CategoryActionKind {
