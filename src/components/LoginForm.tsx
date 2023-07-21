@@ -1,13 +1,11 @@
 'use client'
 
-import Image from 'next/image'
 import { useRouter } from 'next/navigation';
-import { getSession } from 'next-auth/react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { FormEvent } from 'react';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import { LabelledInput, PasswordInput } from './Inputs';
 import { ButtonWithLoader } from './Buttons';
 

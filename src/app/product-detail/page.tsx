@@ -1,5 +1,6 @@
 import { FunctionComponent} from 'react'
 import Head from 'next/head'
+import { ProductView } from '@/components/pages/product-detail'
 
 const ProductDetail:FunctionComponent = () => {
     return (
@@ -7,9 +8,7 @@ const ProductDetail:FunctionComponent = () => {
             <Head>
                 <title>Product Detail</title>
             </Head>
-            <p className='font-bold text-large'>
-                Product Detail
-            </p>
+            <ProductView />
         </div>
     )
 }

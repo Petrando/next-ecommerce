@@ -2,7 +2,6 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import { NextEcommerceProvider } from './provider'
 import "react-toastify/dist/ReactToastify.css";
-import { Navbar } from '@/components/Navbar';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,11 +17,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <NextEcommerceProvider>
-          <Navbar />
-          {children}
-        </NextEcommerceProvider>
+      <body className={inter.className}>        
+          <NextEcommerceProvider>          
+            {children}
+          </NextEcommerceProvider>        
       </body>
     </html>
   )

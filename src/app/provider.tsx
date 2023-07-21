@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, FunctionComponent } from 'react';
-import { usePathname } from 'next/dist/client/components/navigation';
 import { SessionProvider } from 'next-auth/react';
+import { usePathname } from 'next/dist/client/components/navigation';
+import { Navbar } from '@/components/Navbar';
 import ScrollToTop from 'react-scroll-to-top';
 import { CartContext } from '@/context/cartContext';
 import { itemTotal } from '@/utils/helpers/cart-helper';
@@ -22,7 +23,7 @@ const ScrollArrow:FunctionComponent = () => {
   );
 }
 
-export const NextEcommerceProvider:FunctionComponent = ({ children }: Props) => {
+export const NextEcommerceProvider:FunctionComponent<Props> = ({ children }) => {
     const [itemCount, setCount] = useState(0);
     const [ productToDelete, setToDelete ] = useState<IProduct | null>(null); 
 
@@ -31,15 +32,17 @@ export const NextEcommerceProvider:FunctionComponent = ({ children }: Props) => 
     useEffect(()=>{
       setCount(itemTotal())
     }, [])
+
     return <SessionProvider>
-          <CartContext.Provider 
-            value={{
-              total:itemCount, 
-                setItemCount:(newCount:number)=>{ setCount(newCount);},
-                  productToDelete, 
-                    setToDelete:(productToDelete:IProduct|null)=>{setToDelete(productToDelete);}
-            }}
-          >            
+            <CartContext.Provider 
+              value={{
+                total:itemCount, 
+                  setItemCount:(newCount:number)=>{ setCount(newCount);},
+                    productToDelete, 
+                      setToDelete:(productToDelete:IProduct|null)=>{setToDelete(productToDelete);}
+              }}
+          >           
+              <Navbar /> 
               {children}
               {(pathname === "/" || pathname === "/shop" || pathname.includes("/product/")) 
                 && <ShoppingCart />}
