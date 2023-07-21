@@ -1,4 +1,3 @@
-'use client'
 import { FunctionComponent, MouseEventHandler } from 'react'
 import {Spinner} from './Loaders'
 import { PlusCircle } from './Icons'
